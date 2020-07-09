@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.5.2"
+      "version": "7.0.3"
     },
     {
       "type": "datasource",
@@ -26,12 +26,12 @@
       "type": "panel",
       "id": "grafana-worldmap-panel",
       "name": "Worldmap Panel",
-      "version": "0.2.1"
+      "version": "0.3.2"
     },
     {
       "type": "panel",
-      "id": "table",
-      "name": "Table",
+      "id": "table-old",
+      "name": "Table (old)",
       "version": ""
     }
   ],
@@ -69,6 +69,12 @@
       "esGeoPoint": "",
       "esLocationName": "",
       "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 19,
         "w": 9,
@@ -87,7 +93,6 @@
       "mapCenterLongitude": -100,
       "maxDataPoints": 1,
       "mouseWheelZoom": false,
-      "options": {},
       "showLegend": true,
       "stickyLabels": true,
       "tableQueryOptions": {
@@ -144,6 +149,12 @@
       "columns": [],
       "datasource": "${DS_AZURE_MONITOR - LOG ANALYTICS - MS TENANT}",
       "description": "List all the pods from multiple clusters and multiple regions.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 19,
@@ -152,7 +163,6 @@
         "y": 0
       },
       "id": 2,
-      "options": {},
       "pageSize": null,
       "showHeader": true,
       "sort": {
@@ -162,6 +172,7 @@
       "styles": [
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -178,6 +189,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -194,6 +206,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -210,6 +223,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -226,6 +240,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": "cell",
           "colors": [
             "#73BF69",
@@ -247,6 +262,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -263,6 +279,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -315,12 +332,18 @@
       "timeShift": null,
       "title": "Pods",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     },
     {
       "columns": [],
       "datasource": "${DS_AZURE_MONITOR - LOG ANALYTICS - MS TENANT}",
       "description": "List all the containers from multiple clusters and multiple regions",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 21,
@@ -329,7 +352,6 @@
         "y": 19
       },
       "id": 4,
-      "options": {},
       "pageSize": null,
       "showHeader": true,
       "sort": {
@@ -339,6 +361,7 @@
       "styles": [
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -355,6 +378,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -371,6 +395,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -387,6 +412,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -403,6 +429,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -419,6 +446,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -435,6 +463,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -451,6 +480,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -467,6 +497,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -483,6 +514,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -510,7 +542,7 @@
             "valueColumn": ""
           },
           "azureLogAnalytics": {
-            "query": "let podTable = KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by Name\r\n| project TimeGenerated, PodName=Name, Node=Computer, PodType=ControllerKind, PodStatus, PodRestart=PodRestartCount, PodCreationTimeStamp, ClusterName, Namespace;\r\nlet clusterTable = KubeHealth\r\n| where $__timeFilter(TimeGenerated)\n| summarize arg_max(TimeGenerated, *) by ClusterId\r\n| extend ClusterName = tostring(MonitorLabels[\"container.azm.ms/cluster-name\"]), ClusterRegion = tostring(MonitorLabels[\"container.azm.ms/cluster-region\"]), ClusterRG = tostring(MonitorLabels[\"container.azm.ms/cluster-resource-group\"]), SubscriptionId = tostring(MonitorLabels[\"container.azm.ms/cluster-subscription-id\"])\r\n| project ClusterId, ClusterName, ClusterRegion, ClusterRG;\r\nlet podInfo = podTable\r\n| join kind=inner clusterTable on ClusterName\r\n| project PodName, PodStatus, ClusterRegion, ClusterName, Node, PodRestart, ClusterId, PodCreationTimeStamp;\r\nlet containerTable = ContainerInventory\r\n| where $__timeFilter(TimeGenerated)\r\n| summarize arg_max(TimeGenerated, *) by ContainerID\r\n| extend ContainerName=split(Name, \"_\", 1)[0], PodName=tostring(split(Name, \"_\", 2)[0]), Namespace=split(Name, \"_\", 3)[0];\r\ncontainerTable\r\n| join kind=inner podInfo on PodName\r\n| project ContainerName, Status=ContainerState, Pod=PodName, Namespace, Image, ImageTag, ClusterName, CreatedTime, StartedTime, FinishedTime, PodCreationTimeStamp, ClusterRegion, Node, ClusterId, EnvironmentVar, Repository, TimeGenerated",
+            "query": "let podTable = KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by Name\r\n| project TimeGenerated, PodName=Name, Node=Computer, PodType=ControllerKind, PodStatus, PodRestart=PodRestartCount, PodCreationTimeStamp, ClusterName, Namespace;\r\nlet clusterTable = KubeHealth\r\n| where $__timeFilter(TimeGenerated)\n| summarize arg_max(TimeGenerated, *) by ClusterId\r\n| extend ClusterName = tostring(MonitorLabels[\"container.azm.ms/cluster-name\"]), ClusterRegion = tostring(MonitorLabels[\"container.azm.ms/cluster-region\"]), ClusterRG = tostring(MonitorLabels[\"container.azm.ms/cluster-resource-group\"]), SubscriptionId = tostring(MonitorLabels[\"container.azm.ms/cluster-subscription-id\"])\r\n| project ClusterId, ClusterName, ClusterRegion, ClusterRG;\r\nlet podInfo = podTable\r\n| join kind=inner clusterTable on ClusterName\r\n| project PodName, PodStatus, ClusterRegion, ClusterName, Node, PodRestart, ClusterId, PodCreationTimeStamp;\r\nlet containerTable = \r\n(KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\n| where isnotempty(ClusterName)\r\n| where isnotempty(Namespace)\r\n| where isnotempty(Computer)\r\n| where Namespace != \"monitoring\" and Namespace != \"aad-pod-id\" and Namespace != \"kube-system\" \r\n| summarize arg_max(TimeGenerated, *) by ContainerID\r\n| project ContainerID, PodUid, PodName=tostring(Name), Namespace)\r\n| join kind=inner\r\n(ContainerInventory\r\n| where $__timeFilter(TimeGenerated)\n| summarize arg_max(TimeGenerated, *) by ContainerID\r\n| extend ContainerName=Name) on ContainerID\r\n| project-away ContainerID1;\ncontainerTable\r\n| join kind=inner podInfo on PodName\r\n| project ContainerName, Status=ContainerState, Pod=PodName, Namespace, Image, ImageTag, ClusterName, CreatedTime, StartedTime, FinishedTime, PodCreationTimeStamp, ClusterRegion, Node, ClusterId, EnvironmentVar, Repository, TimeGenerated",
             "resultFormat": "table",
             "workspace": "361ee3fb-61db-4e4a-a0fb-215783eb1c14"
           },
@@ -535,10 +567,10 @@
       "timeShift": null,
       "title": "Containers",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     }
   ],
-  "schemaVersion": 21,
+  "schemaVersion": 25,
   "style": "dark",
   "tags": [
     "Azure Monitor",
@@ -554,7 +586,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
