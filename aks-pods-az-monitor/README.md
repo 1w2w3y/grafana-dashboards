@@ -22,3 +22,6 @@ wuweng@microsoft.com
 * 9/6/2025 Updated dashboard for Grafana 11.6
 * 9/22/2020 Fixed the broken Kusto query for listing the clusters
 * 7/9/2020 Fixed the broken container panel and updated the Dashboard to based on Grafana 7
+
+## Gallery link
+https://grafana.com/grafana/dashboards/12180-aks-container-insights/
