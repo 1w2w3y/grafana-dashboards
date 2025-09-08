@@ -367,137 +367,6 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 13,
-        "w": 20,
-        "x": 0,
-        "y": 12
-      },
-      "id": 7,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.3",
-      "targets": [
-        {
-          "azureMonitor": {
-            "aggregation": "Average",
-            "alias": "{{modeldeploymentname}}",
-            "allowedTimeGrainsMs": [
-              60000,
-              300000,
-              900000,
-              1800000,
-              3600000,
-              21600000,
-              43200000,
-              86400000
-            ],
-            "customNamespace": "microsoft.cognitiveservices/accounts",
-            "dimensionFilters": [
-              {
-                "dimension": "ModelDeploymentName",
-                "filters": [],
-                "operator": "eq"
-              }
-            ],
-            "metricName": "AzureOpenAITTLTInMS",
-            "metricNamespace": "microsoft.cognitiveservices/accounts",
-            "region": "$region",
-            "resources": [
-              {
-                "metricNamespace": "Microsoft.CognitiveServices/accounts",
-                "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
-              }
-            ],
-            "timeGrain": "auto"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Monitor",
-          "refId": "A",
-          "subscription": "$subscriptionId"
-        }
-      ],
-      "title": "Avg Time to Last Byte",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
-      },
       "description": "Request count by each model",
       "fieldConfig": {
         "defaults": {
@@ -554,10 +423,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
+        "h": 17,
         "w": 20,
         "x": 0,
-        "y": 25
+        "y": 12
       },
       "id": 2,
       "options": {
@@ -684,10 +553,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
+        "h": 17,
         "w": 20,
         "x": 0,
-        "y": 39
+        "y": 29
       },
       "id": 8,
       "options": {
@@ -814,10 +683,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 17,
         "w": 20,
         "x": 0,
-        "y": 53
+        "y": 46
       },
       "id": 4,
       "options": {
@@ -944,10 +813,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 17,
         "w": 20,
         "x": 0,
-        "y": 66
+        "y": 63
       },
       "id": 5,
       "options": {
@@ -1012,6 +881,137 @@
       ],
       "title": "Generated Completion Tokens",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${DS_AZURE_MONITOR}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 20,
+        "x": 0,
+        "y": 80
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Average",
+            "alias": "{{modeldeploymentname}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "ModelDeploymentName",
+                "filters": [],
+                "operator": "eq"
+              }
+            ],
+            "metricName": "AzureOpenAITTLTInMS",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$resourceGroup",
+                "resourceName": "$resourceName",
+                "subscription": "$subscriptionId"
+              }
+            ],
+            "timeGrain": "auto"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$subscriptionId"
+        }
+      ],
+      "title": "Time to Last Byte",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 41,
@@ -1020,15 +1020,20 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "definition": "",
-        "description": "Subscription of the AI Foundry",
+        "description": "Subscription of the Azure AI Foundry",
+        "includeAll": false,
         "label": "Subscription",
         "name": "subscriptionId",
         "options": [],
         "query": {
-          "azureLogAnalytics": {
-            "query": "",
-            "resources": []
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
           },
           "queryType": "Azure Subscriptions",
           "refId": "A"
@@ -1124,6 +1129,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "ai-foundry",
-  "version": 47,
+  "version": 49,
   "weekStart": ""
 }
