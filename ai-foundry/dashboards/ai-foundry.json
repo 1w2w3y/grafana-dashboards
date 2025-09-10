@@ -52,7 +52,7 @@
       }
     ]
   },
-  "description": "Azure AI Foundry metrics dashboards",
+  "description": "Visulization for monitoring Azure AI Foundry usage and latency across model deployments in a single Grafana dashboard.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -1062,6 +1062,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "definition": "",
         "description": "Azure AI Foundry Resource Id",
         "label": "AI Foundry",
@@ -1087,6 +1091,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "hide": 2,
         "name": "resourceGroup",
         "options": [],
@@ -1104,6 +1112,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "hide": 2,
         "name": "resourceName",
         "options": [],
@@ -1121,6 +1133,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "hide": 2,
         "name": "region",
         "options": [],
@@ -1158,6 +1174,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "ai-foundry",
-  "version": 50,
+  "version": 53,
   "weekStart": ""
 }

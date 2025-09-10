@@ -58,11 +58,25 @@
       }
     ]
   },
+  "description": "Visualization for monitoring LiteLLM request latency, usage, tokens, and routes using Azure Monitor (Application Insights) in a single Grafana dashboard.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/litellm-azmon/README.md"
+    }
+  ],
   "panels": [
     {
       "collapsed": false,
@@ -767,7 +781,7 @@
         "uid": "${DS_AZURE_MONITOR}"
       },
       "gridPos": {
-        "h": 11,
+        "h": 22,
         "w": 22,
         "x": 0,
         "y": 43
@@ -810,7 +824,11 @@
   ],
   "refresh": "1m",
   "schemaVersion": 41,
-  "tags": [],
+  "tags": [
+    "Azure Monitor",
+    "LiteLLM",
+    "Application Insihgts"
+  ],
   "templating": {
     "list": [
       {
@@ -869,6 +887,6 @@
   "timezone": "browser",
   "title": "LiteLLM",
   "uid": "litellm-azmon",
-  "version": 59,
+  "version": 61,
   "weekStart": ""
 }
