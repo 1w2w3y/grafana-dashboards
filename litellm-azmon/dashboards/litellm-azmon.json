@@ -833,15 +833,20 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "definition": "",
         "description": "Subscription of the Application Insights",
+        "includeAll": false,
         "label": "Subscription",
         "name": "subscriptionId",
         "options": [],
         "query": {
-          "azureLogAnalytics": {
-            "query": "",
-            "resources": []
+          "grafanaTemplateVariableFn": {
+            "kind": "SubscriptionsQuery",
+            "rawQuery": "subscriptions()"
           },
           "queryType": "Azure Subscriptions",
           "refId": "A"
@@ -853,6 +858,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "definition": "",
         "description": "Application Insights Resource Id",
         "label": "Application Insights",
@@ -887,6 +896,6 @@
   "timezone": "browser",
   "title": "LiteLLM",
   "uid": "litellm-azmon",
-  "version": 61,
+  "version": 62,
   "weekStart": ""
 }
