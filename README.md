@@ -7,3 +7,6 @@ https://grafana.com/grafana/dashboards/12180-aks-container-insights/
 ## [Azure AI Foundry](./ai-foundry/README.md)
 ID: 24039
 ![ai-foundry](./ai-foundry/ai-foundry-top-section.png)
+
+## [LiteLLM](./litellm-azmon/README.md)
+![ai-foundry](./litellm-azmon/litellm-latency-2509.png)
