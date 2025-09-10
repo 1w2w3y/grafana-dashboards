@@ -33,8 +33,8 @@ Previews:
 - Downloads: 0
 
 Previews:
-![LiteLLM – Usage](./litellm-azmon/litellm-usage-2509.png)
 ![LiteLLM – Latency](./litellm-azmon/litellm-latency-2509.png)
+![LiteLLM – Usage](./litellm-azmon/litellm-usage-2509.png)
 ![LiteLLM – Prompt Details](./litellm-azmon/litellm-prompt-details-2509.png)
 
 ---
