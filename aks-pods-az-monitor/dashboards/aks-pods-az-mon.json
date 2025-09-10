@@ -57,7 +57,20 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/aks-pods-az-monitor/README.md"
+    }
+  ],
   "panels": [
     {
       "datasource": {
@@ -855,7 +868,7 @@
           "queryType": "Azure Subscriptions",
           "refId": "A"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "sort": 5,
         "type": "query"
@@ -881,7 +894,7 @@
             "$subscriptionId"
           ]
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "sort": 5,
         "type": "query"
@@ -908,6 +921,6 @@
   "timezone": "browser",
   "title": "AKS Container Insights",
   "uid": "aks-con-ins",
-  "version": 13,
+  "version": 16,
   "weekStart": ""
 }
