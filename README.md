@@ -39,6 +39,19 @@ Previews:
 
 ---
 
+## LiteLLM Trace Details
+- Details and setup: [./litellm-trace/README.md](./litellm-trace/README.md)  
+- Gallery ID: —  
+- Downloads: —
+
+Previews:
+![LiteLLM Trace – Overview](./litellm-trace/litellm-trace-overwiew-2509.png)
+![LiteLLM Trace – LLM Output](./litellm-trace/litellm-trace-llm-output-2509.png)
+![LiteLLM Trace – Trace Only](./litellm-trace/litellm-trace-only-2509.png)
+![LiteLLM Trace – Prompts](./litellm-trace/litellm-trace-llm-prompts-2509.png)
+
+---
+
 # Getting Started
 
 You can import these dashboards into Grafana in two ways:
@@ -56,6 +69,7 @@ You can import these dashboards into Grafana in two ways:
   - `./aks-pods-az-monitor/dashboards/aks-pods-az-mon.json`
   - `./ai-foundry/dashboards/ai-foundry.json`
   - `./litellm-azmon/dashboards/litellm-azmon.json`
+  - `./litellm-trace/dashboards/litellm-trace.json`
 
 Note: Some dashboards expect specific data sources (for example, Azure Monitor). Ensure the corresponding data sources are configured in Grafana for the panels to populate correctly.
 
