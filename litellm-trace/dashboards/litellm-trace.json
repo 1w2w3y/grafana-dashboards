@@ -31,6 +31,12 @@
     },
     {
       "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
       "id": "traces",
       "name": "Traces",
       "version": ""
@@ -68,10 +74,170 @@
       "title": "Doc",
       "tooltip": "Documentation",
       "type": "link",
-      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/litellm-azmon/README.md"
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/litellm-trace/README.md"
     }
   ],
   "panels": [
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 9,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "description": "Recent LLM calls",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Open trace",
+                  "url": "/d/litellm-trace/litellm-trace-details?var-litellmTraceId=${__data.fields[TraceId]}"
+                }
+              ],
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Token"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 439
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "request_route"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 193
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "model"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 128
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "timestamp"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 256
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 20,
+            "x": 0,
+            "y": 1
+          },
+          "id": 10,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.3",
+          "targets": [
+            {
+              "azureLogAnalytics": {
+                "dashboardTime": true,
+                "query": "dependencies\r\n| where name == \"litellm_request\"\r\n| extend request_route = tostring(customDimensions.[\"metadata.user_api_key_request_route\"])\r\n| extend gen_ai_request_model = tostring(customDimensions.[\"gen_ai.request.model\"])\r\n| extend gen_ai_system = tostring(customDimensions.[\"gen_ai.system\"])\r\n| extend gen_ai_usage_completion_tokens = tostring(customDimensions.[\"gen_ai.usage.completion_tokens\"])\r\n| extend gen_ai_usage_prompt_tokens = tostring(customDimensions.[\"gen_ai.usage.prompt_tokens\"])\r\n| extend llm_usage_total_tokens = toint(customDimensions.[\"llm.usage.total_tokens\"])\r\n| project timestamp, model=gen_ai_request_model, request_route, duration, Token=llm_usage_total_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
+                "resources": [
+                  "$applicationInsightsResourceId"
+                ],
+                "resultFormat": "logs",
+                "timeColumn": "timestamp"
+              },
+              "datasource": {
+                "type": "grafana-azure-monitor-datasource",
+                "uid": "${DS_AZURE_MONITOR}"
+              },
+              "queryType": "Azure Log Analytics",
+              "refId": "A"
+            }
+          ],
+          "title": "",
+          "type": "table"
+        }
+      ],
+      "title": "Select a trace",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Details",
+      "type": "row"
+    },
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
@@ -128,7 +294,7 @@
         "h": 10,
         "w": 20,
         "x": 0,
-        "y": 0
+        "y": 2
       },
       "id": 6,
       "options": {
@@ -180,7 +346,7 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 10
+        "y": 12
       },
       "id": 7,
       "options": {
@@ -232,7 +398,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 29
       },
       "id": 5,
       "panels": [],
@@ -295,7 +461,7 @@
         "h": 14,
         "w": 20,
         "x": 0,
-        "y": 28
+        "y": 30
       },
       "id": 2,
       "options": {
@@ -340,7 +506,11 @@
   ],
   "refresh": "",
   "schemaVersion": 41,
-  "tags": [],
+  "tags": [
+    "Application Insights",
+    "Azure Monitor",
+    "LiteLLM"
+  ],
   "templating": {
     "list": [
       {
@@ -425,13 +595,13 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "LiteLLM Trace Details",
+  "title": "LiteLLM Trace",
   "uid": "litellm-trace",
-  "version": 40,
+  "version": 64,
   "weekStart": ""
 }

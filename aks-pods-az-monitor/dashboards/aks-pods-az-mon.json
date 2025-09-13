@@ -52,7 +52,7 @@
       }
     ]
   },
-  "description": "Azure Monitor Container Insights Global view for multiple AKS clusters",
+  "description": "Global AKS Container Insights overview. Aggregates Azure Monitor Container Insights data from multiple AKS clusters and regions in a single view. Panels include: a geomap of total Running pod counts by Azure region, a Pods inventory table with status and restart highlights, and a Containers inventory table with image and lifecycle timestamps. Uses Azure Log Analytics (Kusto) via the Azure Monitor data source and supports subscription and Log Analytics workspace template variables. Default time range is last 3h; adjust as needed for investigations.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -77,6 +77,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Geomap of total Running pod count per Azure region across all selected AKS clusters. Data is aggregated from KubePodInventory joined with KubeNodeInventory, filtered to exclude system namespaces, and sized by PodCount. Use mouse zoom and legend to locate hotspots and verify regional distribution. Only pods with Status == Running are counted; marker size reflects relative totals.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -231,7 +232,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "List all the pods from multiple clusters and multiple regions.",
+      "description": "Inventory of pods across all selected clusters/regions. Data is sourced from KubePodInventory joined with KubeNodeInventory, excluding system namespaces (monitoring, aad-pod-id, kube-system). Columns include ClusterName, PodStatus, ContainerStatus/Reason, Node, Restarts (thresholds: 0-2 green, >=3 orange, >=10 red), Age, Namespace. Use to quickly find failing/CrashLooping pods and high-restart workloads.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -513,7 +514,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "List all the containers from multiple clusters and multiple regions",
+      "description": "Inventory of containers across all selected clusters/regions. Joins KubePodInventory (latest per container) with ContainerInventory and cluster metadata; excludes system namespaces. Shows ContainerName, Status, Pod, Image/Tag/Repository, Node, Region/Cluster, and lifecycle timestamps (Created, Started, Finished). Useful for image provenance checks, rollout verification, and identifying terminated/failed containers.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -921,6 +922,6 @@
   "timezone": "browser",
   "title": "AKS Container Insights",
   "uid": "aks-con-ins",
-  "version": 16,
+  "version": 17,
   "weekStart": ""
 }

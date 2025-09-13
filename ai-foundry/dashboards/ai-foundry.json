@@ -403,7 +403,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -491,7 +491,7 @@
                 "subscription": "$subscriptionId"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "PT1H"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -533,7 +533,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -621,7 +621,7 @@
                 "subscription": "$subscriptionId"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "PT1H"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -663,7 +663,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -751,7 +751,7 @@
                 "subscription": "$subscriptionId"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "PT1H"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -793,7 +793,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -881,7 +881,7 @@
                 "subscription": "$subscriptionId"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "PT1H"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -923,7 +923,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1012,7 +1012,7 @@
                 "subscription": "$subscriptionId"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "PT1H"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1155,7 +1155,7 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -1174,6 +1174,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "ai-foundry",
-  "version": 53,
+  "version": 54,
   "weekStart": ""
 }

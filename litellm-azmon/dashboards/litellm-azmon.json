@@ -25,12 +25,6 @@
     },
     {
       "type": "panel",
-      "id": "logs",
-      "name": "Logs",
-      "version": ""
-    },
-    {
-      "type": "panel",
       "id": "table",
       "name": "Table",
       "version": ""
@@ -58,7 +52,7 @@
       }
     ]
   },
-  "description": "Visualization for monitoring LiteLLM request latency, usage, tokens, and routes using Azure Monitor (Application Insights) in a single Grafana dashboard.",
+  "description": "End-to-end LiteLLM observability using Azure Monitor (Application Insights) in Grafana. Track request latency percentiles (avg, p75/p90/p95/p99), request and token usage by model and by request route, and inspect recent calls with deep links to trace details. Uses template variables for Subscription and Application Insights resource; refreshes every 5m; default time range 7d.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -96,6 +90,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Latency trend for litellm_request dependencies aggregated daily. Shows avg and P75/P90/P95/P99 duration (ms) to spot regressions over time.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -203,6 +198,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Latency distribution by model for litellm_request. Shows avg and P75/P90/P95/P99 duration (ms) to compare model performance.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -292,6 +288,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Daily request count by model derived from Application Insights dependencies where name == 'litellm_request'.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -407,6 +404,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Daily total token usage by model, summed from customDimensions['llm.usage.total_tokens'].",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -536,6 +534,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Daily request count grouped by request_route (metadata.user_api_key_request_route).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -651,6 +650,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Daily total token usage grouped by request_route.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -780,6 +780,55 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Most recent litellm_request calls with model, route, duration, total tokens and snippet of response. Click TraceId to open the detailed trace.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Open trace details",
+              "url": "/d/litellm-trace?var-litellmTraceId=${__data.fields.TraceId}&from=${__from}&to=${__to}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TraceId"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 294
+              }
+            ]
+          }
+        ]
+      },
       "gridPos": {
         "h": 22,
         "w": 22,
@@ -788,22 +837,24 @@
       },
       "id": 2,
       "options": {
-        "dedupStrategy": "none",
-        "enableInfiniteScrolling": true,
-        "enableLogDetails": true,
-        "prettifyLogMessage": true,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
       },
       "pluginVersion": "11.6.3",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\r\n| where name == \"litellm_request\"\r\n| extend request_route = tostring(customDimensions.[\"metadata.user_api_key_request_route\"])\r\n| extend gen_ai_request_model = tostring(customDimensions.[\"gen_ai.request.model\"])\r\n| extend gen_ai_system = tostring(customDimensions.[\"gen_ai.system\"])\r\n| extend gen_ai_usage_completion_tokens = tostring(customDimensions.[\"gen_ai.usage.completion_tokens\"])\r\n| extend gen_ai_usage_prompt_tokens = tostring(customDimensions.[\"gen_ai.usage.prompt_tokens\"])\r\n| extend llm_usage_total_tokens = tostring(customDimensions.[\"llm.usage.total_tokens\"])\r\n| order by timestamp desc\r\n| project-reorder gen_ai_request_model, request_route, gen_ai_usage_prompt_tokens, gen_ai_usage_completion_tokens, llm_usage_total_tokens\r\n| limit 100",
+            "query": "dependencies\r\n| where name == \"litellm_request\"\r\n| extend request_route = tostring(customDimensions.[\"metadata.user_api_key_request_route\"])\r\n| extend gen_ai_request_model = tostring(customDimensions.[\"gen_ai.request.model\"])\r\n| extend gen_ai_system = tostring(customDimensions.[\"gen_ai.system\"])\r\n| extend gen_ai_usage_completion_tokens = tostring(customDimensions.[\"gen_ai.usage.completion_tokens\"])\r\n| extend gen_ai_usage_prompt_tokens = tostring(customDimensions.[\"gen_ai.usage.prompt_tokens\"])\r\n| extend llm_usage_total_tokens = toint(customDimensions.[\"llm.usage.total_tokens\"])\r\n| extend response = tostring(customDimensions.[\"gen_ai.completion.0.content\"])\r\n| project timestamp, model=gen_ai_request_model, request_route, duration, Token=llm_usage_total_tokens, TraceId=operation_Id, response\r\n| order by timestamp desc ",
             "resources": [
               "$applicationInsightsResourceId"
             ],
@@ -819,15 +870,15 @@
         }
       ],
       "title": "Recent LLM calls",
-      "type": "logs"
+      "type": "table"
     }
   ],
-  "refresh": "1m",
+  "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
     "Azure Monitor",
     "LiteLLM",
-    "Application Insihgts"
+    "Application Insights"
   ],
   "templating": {
     "list": [
@@ -896,6 +947,6 @@
   "timezone": "browser",
   "title": "LiteLLM",
   "uid": "litellm-azmon",
-  "version": 62,
+  "version": 69,
   "weekStart": ""
 }
