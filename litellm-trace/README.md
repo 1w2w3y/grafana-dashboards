@@ -8,6 +8,9 @@ Detailed diagnostics for a single LiteLLM request trace using Azure Monitor (App
 ![litellm-trace-only](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-trace/litellm-trace-only-2509.png)
 ![litellm-trace-llm-prompts](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-trace/litellm-trace-llm-prompts-2509.png)
 
+## Issues and feedback
+https://github.com/1w2w3y/grafana-dashboards/issues
+
 ## Features
 - End-to-end distributed trace
   - Visualizes the span timeline for the selected request (`operation_Id`), including requests, dependencies, exceptions, custom events, and traces.
@@ -51,9 +54,6 @@ Detailed diagnostics for a single LiteLLM request trace using Azure Monitor (App
 - LiteLLM must emit telemetry to Application Insights:
   - OpenTelemetry dependency with `name == "litellm_request"`.
   - Custom dimensions as listed above for model, tokens, completion, and prompt turns.
-
-## Contact
-wuweng@microsoft.com
 
 ## Change history
 - 9/12/2025 Initial version for Grafana 11.6

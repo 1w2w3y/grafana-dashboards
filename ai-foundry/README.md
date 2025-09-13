@@ -6,6 +6,9 @@ Visulization for monitoring Azure AI Foundry usage and latency across model depl
 ![ai-foundry-top-section](https://github.com/1w2w3y/grafana-dashboards/raw/master/ai-foundry/ai-foundry-top-section.png)
 ![ai-foundry-latency](https://github.com/1w2w3y/grafana-dashboards/raw/master/ai-foundry/ai-foundry-latency.png)
 
+## Issues and feedback
+https://github.com/1w2w3y/grafana-dashboards/issues
+
 ## Features
 - Totals at a glance
   - Inference Token count (Azure Monitor metric `TokenTransaction`)
@@ -42,9 +45,6 @@ Visulization for monitoring Azure AI Foundry usage and latency across model depl
 
 ## Requirements
 - Grafana 11.6+ with the Azure Monitor data source configured with access to the subscription that contains your AI Foundry account.
-
-## Contact
-wuweng@microsoft.com
 
 ## Change history
 - 9/8/2025 Initial version for Grafana 11.6

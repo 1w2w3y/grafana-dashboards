@@ -7,6 +7,9 @@ Visualization for monitoring LiteLLM request latency, usage, tokens, and routes 
 ![litellm-latency](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-azmon/litellm-latency-2509.png)
 ![litellm-prompt-details](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-azmon/litellm-prompt-details-2509.png)
 
+## Issues and feedback
+https://github.com/1w2w3y/grafana-dashboards/issues
+
 ## Features
 - Latency trend
   - End‑to‑end request latency time series with percentiles: avg, p75, p90, p95, p99.
@@ -45,9 +48,6 @@ Visualization for monitoring LiteLLM request latency, usage, tokens, and routes 
 - Grafana 11.6+ with the Azure Monitor data source.
 - Read access to the target subscription and Application Insights workspace.
 - LiteLLM must emit telemetry to Application Insights (OpenTelemetry dependencies with name `litellm_request` and the custom dimensions listed above).
-
-## Contact
-wuweng@microsoft.com
 
 ## Change history
 - 9/10/2025 Initial version for Grafana 11.6
