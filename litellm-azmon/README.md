@@ -2,6 +2,8 @@
 
 Visualization for monitoring LiteLLM request latency, usage, tokens, and routes using Azure Monitor (Application Insights) in a single Grafana dashboard.
 
+There is a dependant trace detail dashboard (dashboard Id 24064) that will show details for one selected trace.
+
 ## Screenshots
 ![litellm-usage](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-azmon/litellm-usage-2509.png)
 ![litellm-latency](https://github.com/1w2w3y/grafana-dashboards/raw/master/litellm-azmon/litellm-latency-2509.png)
