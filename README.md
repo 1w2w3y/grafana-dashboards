@@ -19,7 +19,6 @@ Preview:
 - Details and setup: [./ai-foundry/README.md](./ai-foundry/README.md)  
 - Gallery ID: `24039`  
 - Gallery link: https://grafana.com/grafana/dashboards/24039-ai-foundry/
-- Downloads: 3
 
 Previews:
 ![Azure AI Foundry – Overview](./ai-foundry/ai-foundry-top-section.png)
@@ -30,7 +29,7 @@ Previews:
 ## LiteLLM
 - Details and setup: [./litellm-azmon/README.md](./litellm-azmon/README.md)  
 - Gallery ID: `24055`  
-- Downloads: 0
+- Gallery link: https://grafana.com/grafana/dashboards/24055-litellm/
 
 Previews:
 ![LiteLLM – Latency](./litellm-azmon/litellm-latency-2509.png)
@@ -41,8 +40,8 @@ Previews:
 
 ## LiteLLM Trace Details
 - Details and setup: [./litellm-trace/README.md](./litellm-trace/README.md)  
-- Gallery ID: —  
-- Downloads: —
+- Gallery ID: `24064`  
+- Gallery link: https://grafana.com/grafana/dashboards/24064-litellm-trace-details/
 
 Previews:
 ![LiteLLM Trace – Overview](./litellm-trace/litellm-trace-overwiew-2509.png)
