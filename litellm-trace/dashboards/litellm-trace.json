@@ -160,7 +160,7 @@
                 "properties": [
                   {
                     "id": "custom.width",
-                    "value": 128
+                    "value": 189
                   }
                 ]
               },
@@ -172,7 +172,19 @@
                 "properties": [
                   {
                     "id": "custom.width",
-                    "value": 256
+                    "value": 209
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "duration"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "ms"
                   }
                 ]
               }
@@ -369,7 +381,7 @@
           "azureTraces": {
             "operationId": "$litellmTraceId",
             "resources": [
-              "/subscriptions/3a7edf7d-1488-4017-a908-e50d0a1642a6/resourceGroups/amg-team-ai-2508-rg/providers/microsoft.insights/components/lt-litellm-2508"
+              "$applicationInsightsResourceId"
             ],
             "resultFormat": "trace",
             "traceTypes": [
@@ -602,6 +614,6 @@
   "timezone": "browser",
   "title": "LiteLLM Trace",
   "uid": "litellm-trace",
-  "version": 64,
+  "version": 68,
   "weekStart": ""
 }

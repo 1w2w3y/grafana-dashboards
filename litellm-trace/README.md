@@ -57,3 +57,4 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 
 ## Change history
 - 9/12/2025 Initial version for Grafana 11.6
+- 9/24/2025 Fix Application Insights resource selection variable
