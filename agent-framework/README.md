@@ -1,4 +1,4 @@
-# Agent Framework
+# Agent Framework - Agent Overview
 
 ## Screenshots
 ![agent-framework-grafana](https://github.com/1w2w3y/grafana-dashboards/raw/master/agent-framework/agent-framework-grafana.gif)
