@@ -26,6 +26,23 @@ Previews:
 
 ---
 
+## Agent Framework - Agent Overview
+- Details and setup: [./agent-framework/README.md](./agent-framework/README.md)  
+- Gallery ID: `24156`  
+
+Previews:
+![Agent Framework - Agent Overview](./agent-framework/agent-framework-grafana.gif)
+
+---
+
+## Agent Framework - Workflow Overview
+- Details and setup: [./af-workflow/README.md](./af-workflow/README.md)  
+- Gallery ID: `24176`  
+
+Previews:
+![Agent Framework - Workflow Overview](./af-workflow/af-workflow.gif)
+---
+
 ## LiteLLM
 - Details and setup: [./litellm-azmon/README.md](./litellm-azmon/README.md)  
 - Gallery ID: `24055`  
