@@ -77,7 +77,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of inference tokens processed on a model. Calculated as prompt tokens (input) plus generated tokens (output). Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -105,7 +105,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 3,
+      "id": 13,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -147,7 +147,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "TokenTransaction",
+            "metricName": "TotalTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -170,7 +170,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Inference Token count",
+      "title": "Total Tokens",
       "type": "stat"
     },
     {
@@ -178,7 +178,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of prompt tokens processed (input) on a model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -206,7 +206,7 @@
         "x": 0,
         "y": 4
       },
-      "id": 9,
+      "id": 11,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -248,7 +248,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "ProcessedPromptTokens",
+            "metricName": "InputTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -271,7 +271,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Prompt Token count",
+      "title": "Input Tokens",
       "type": "stat"
     },
     {
@@ -279,7 +279,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of tokens generated (output) from an OpenAI model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -307,7 +307,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 10,
+      "id": 12,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -349,7 +349,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "GeneratedTokens",
+            "metricName": "OutputTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -372,7 +372,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Completion Token count",
+      "title": "Output Tokens",
       "type": "stat"
     },
     {
@@ -380,7 +380,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "Request count by each model",
+      "description": "Number of calls made to the Azure OpenAI API over a period of time. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -510,7 +510,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of inference tokens processed on a model. Calculated as prompt tokens (input) plus generated tokens (output). Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -609,7 +609,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "TokenTransaction",
+            "metricName": "TotalTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -632,7 +632,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Processed Inference Tokens",
+      "title": "Total Tokens",
       "type": "timeseries"
     },
     {
@@ -640,7 +640,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of prompt tokens processed (input) on a model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -739,7 +739,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "ProcessedPromptTokens",
+            "metricName": "InputTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -762,7 +762,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Processed Prompt Tokens",
+      "title": "Input Tokens",
       "type": "timeseries"
     },
     {
@@ -770,7 +770,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "Number of tokens generated (output) from an OpenAI model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -869,7 +869,7 @@
                 "operator": "eq"
               }
             ],
-            "metricName": "GeneratedTokens",
+            "metricName": "OutputTokens",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -892,7 +892,7 @@
           "subscription": "$subscriptionId"
         }
       ],
-      "title": "Generated Completion Tokens",
+      "title": "Output Tokens",
       "type": "timeseries"
     },
     {
@@ -900,7 +900,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "",
+      "description": "For streaming and non-streaming requests; time it takes for last byte of response data to be received after request is made by model. Applies to PTU, PTU-managed, and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1155,7 +1155,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {
@@ -1174,6 +1174,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "ai-foundry",
-  "version": 54,
+  "version": 66,
   "weekStart": ""
 }
