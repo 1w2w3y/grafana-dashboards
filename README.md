@@ -29,6 +29,7 @@ Previews:
 ## Agent Framework - Agent Overview
 - Details and setup: [./agent-framework/README.md](./agent-framework/README.md)  
 - Gallery ID: `24156`  
+- Gallery link: https://grafana.com/grafana/dashboards/24156-agent-framework/
 
 Previews:
 ![Agent Framework - Agent Overview](./agent-framework/agent-framework-grafana.gif)
@@ -38,6 +39,7 @@ Previews:
 ## Agent Framework - Workflow Overview
 - Details and setup: [./af-workflow/README.md](./af-workflow/README.md)  
 - Gallery ID: `24176`  
+- Gallery link: https://grafana.com/grafana/dashboards/24176-agent-framework-workflow/
 
 Previews:
 ![Agent Framework - Workflow Overview](./af-workflow/af-workflow.gif)
