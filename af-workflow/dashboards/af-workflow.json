@@ -76,11 +76,25 @@
       }
     ]
   },
+  "description": "Comprehensive monitoring dashboard for Agent Framework workflows, tracking execution metrics, performance analysis, and trace visualization",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/af-workflow/README.md"
+    }
+  ],
   "panels": [
     {
       "datasource": {
@@ -705,6 +719,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Interactive table listing recent workflow executions with trace IDs for detailed analysis",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -910,6 +925,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Visual representation of executor dependencies and workflow execution graph",
       "gridPos": {
         "h": 20,
         "w": 23,
@@ -980,6 +996,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Distributed tracing view showing detailed execution timeline and dependencies for the selected workflow",
       "gridPos": {
         "h": 33,
         "w": 23,
@@ -1176,6 +1193,6 @@
   "timezone": "",
   "title": "Agent Framework Workflow",
   "uid": "af-workflow",
-  "version": 70,
+  "version": 72,
   "weekStart": ""
 }

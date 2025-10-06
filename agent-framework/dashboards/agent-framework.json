@@ -88,11 +88,25 @@
       }
     ]
   },
+  "description": "Comprehensive monitoring dashboard for AI agent framework performance, tracking operations, token usage, costs, errors, and detailed trace analysis. Monitor agent health, response times, success rates, and resource consumption in real-time.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Doc",
+      "tooltip": "Documentation",
+      "type": "link",
+      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/agent-framework/README.md"
+    }
+  ],
   "panels": [
     {
       "datasource": {
@@ -220,12 +234,13 @@
       "targets": [
         {
           "azureLogAnalytics": {
-            "dashboardTime": false,
+            "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
             "resources": [
               "$applicationInsightsResourceId"
             ],
-            "resultFormat": "time_series"
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -520,7 +535,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    operations_per_minute = count() \n    by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    operations_count = count() \n    by bin(timestamp, $interval)",
             "resources": [
               "$applicationInsightsResourceId"
             ],
@@ -844,7 +859,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend \n    // Adjust these rates based on your model pricing (example: GPT-5 pricing)\n    input_cost = input_tokens * 0.00000125,  // $1.25 per 1M input tokens\n    output_cost = output_tokens * 0.00001    // $10 per 1M output tokens\n| summarize \n    estimated_cost = sum(input_cost + output_cost)\n    by bin(timestamp, 1d)\n| order by timestamp asc",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend \n    // Adjust these rates based on your model pricing (example: GPT-5 mini pricing)\n    input_cost = input_tokens * 0.00000025,   // $0.25 per 1M input tokens\n    output_cost = output_tokens * 0.000002    // $2 per 1M output tokens\n| summarize \n    estimated_cost = sum(input_cost + output_cost)\n    by bin(timestamp, 1d)\n| order by timestamp asc",
             "resources": [
               "$applicationInsightsResourceId"
             ],
@@ -1023,7 +1038,7 @@
             "resources": [
               "$applicationInsightsResourceId"
             ],
-            "resultFormat": "time_series",
+            "resultFormat": "logs",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -1449,7 +1464,7 @@
             "resources": [
               "$applicationInsightsResourceId"
             ],
-            "resultFormat": "table",
+            "resultFormat": "logs",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -1592,7 +1607,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
-      "description": "Recent agent operations",
+      "description": "Interactive table listing recent agent operations with timestamp, agent name, duration, and token usage. Click any row to drill down into detailed trace information for that specific operation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1608,7 +1623,7 @@
           "links": [
             {
               "targetBlank": false,
-              "title": "Open trace",
+              "title": "Open trace with trace Id \"${__data.fields[TraceId]}\"",
               "url": "/d/agent-framework/agent-framework?var-agentTraceId=${__data.fields[TraceId]}"
             }
           ],
@@ -1707,7 +1722,12 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "duration"
+          }
+        ]
       },
       "pluginVersion": "11.6.3",
       "targets": [
@@ -1749,6 +1769,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${DS_AZURE_MONITOR}"
       },
+      "description": "Detailed trace visualization showing the complete execution flow of a selected agent operation, including all dependencies, timing, and hierarchical span relationships for debugging and performance analysis.",
       "gridPos": {
         "h": 27,
         "w": 21,
@@ -1889,7 +1910,7 @@
       {
         "auto": true,
         "auto_count": 30,
-        "auto_min": "10s",
+        "auto_min": "10m",
         "current": {
           "text": "$__auto",
           "value": "$__auto"
@@ -1936,13 +1957,13 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Agent Framework",
   "uid": "agent-framework",
-  "version": 46,
+  "version": 59,
   "weekStart": ""
 }
