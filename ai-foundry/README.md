@@ -49,3 +49,4 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 ## Change history
 - 9/8/2025 Initial version for Grafana 11.6
 - 9/30/2025 Update to more suitable metrics and improved layout
+- 10/10/2025 add estimated cost panel
