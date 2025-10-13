@@ -1,6 +1,17 @@
+# Grafana dashboards for AI Foundry
+
+AI Foundry model deployments will emit useful Azure Monitor metrics. You can leverage this AI Foundry Grafana dashboard to view cost, usage and performance of your model deployments.
+
+![AI Foundry dashboard](https://raw.githubusercontent.com/1w2w3y/grafana-dashboards/master/ai-foundry/ai-foundry-top-section.png)
+
+## Access the dashboard in Azure Portal
+
+- [AI Foundry dashboard](https://aka.ms/amg/dash/ai-foundry)
+
 # Grafana dashboards for Agent Framework
 
 Azure Monitor Dashboards with Grafana provides prebuilt monitoring visualizations for Agent Framework. These dashboards are available directly within the Azure portal, with no extra setup or costs.
+
 
 ## Available dashboards
 
@@ -38,7 +49,7 @@ The `setup_observability()` function will look for the following environment var
 Details here:
 https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/GettingStarted/Workflows/Observability/ApplicationInsights/Program.cs
 
-## Next steps
+## Access the dashboards in Azure Portal
 
-- [Agent Framework - Agent Overview dashboard](https://grafana.com/grafana/dashboards/24156-agent-framework/)
-- [Agent Framework - Workflow Overview dashboard](https://grafana.com/grafana/dashboards/24176-agent-framework-workflow/)
+- [Agent Framework - Agent Overview dashboard](https://aka.ms/amg/dash/af-agent)
+- [Agent Framework - Workflow Overview dashboard](https://aka.ms/amg/dash/af-workflow)
