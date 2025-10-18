@@ -16,4 +16,4 @@ To use monitoring dashboard for model deployments in Foundry Models, you need th
 ## References
 
 - [Monitor model deployments in Azure AI Foundry Models](https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/how-to/monitor-models)
-- [Azure Portal link for the AI Foundry platform metrics dashboard](http://aka.ms/amg/dash-doc/ai-foundry)
+- [Azure Portal link for the AI Foundry platform metrics dashboard](http://aka.ms/amg/dash/ai-foundry)

@@ -1,7 +1,11 @@
 # Grafana dashboards for Agent Framework
 
-Azure Monitor Dashboards with Grafana provides prebuilt monitoring visualizations for Agent Framework. These dashboards are available directly within the Azure portal, with no extra setup or costs.
+Agent Framework has built-in good Open Telemetry support. After adding instrumentation to send data to Application Insights, you can leverage Azure Monitor Dashboards with Grafana to visualize and monitor the performance of your Agent Framework applications. These dashboards are available directly within the Azure portal, with no extra setup or costs.
 
+## Access the dashboards in Azure Portal
+
+- [Agent Framework - Agent Overview dashboard](https://aka.ms/amg/dash/af-agent)
+- [Agent Framework - Workflow Overview dashboard](https://aka.ms/amg/dash/af-workflow)
 
 ## Available dashboards
 
@@ -37,9 +41,4 @@ The `setup_observability()` function will look for the following environment var
 
 ## Instrument agent framework with Application Insights - .NET
 Details here:
-https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/GettingStarted/Workflows/Observability/ApplicationInsights/Program.cs
-
-## Access the dashboards in Azure Portal
-
-- [Agent Framework - Agent Overview dashboard](https://aka.ms/amg/dash/af-agent)
-- [Agent Framework - Workflow Overview dashboard](https://aka.ms/amg/dash/af-workflow)
+https://github.com/microsoft/agent-framework/tree/main/dotnet/samples/GettingStarted/AgentOpenTelemetry
