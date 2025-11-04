@@ -92,14 +92,14 @@
       "title": "Doc",
       "tooltip": "Documentation",
       "type": "link",
-      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/af-workflow/README.md"
+      "url": "https://aka.ms/amg/dash-doc/af-workflow"
     }
   ],
   "panels": [
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Overview of workflow executions and executor operations",
       "fieldConfig": {
@@ -263,7 +263,7 @@
             "dashboardTime": true,
             "query": "let workflow_stats = dependencies \n| where name == \"workflow.run\"\n| summarize \n    ['Total Workflows'] = count(),\n    ['Avg Workflow Time'] = round(avg(duration) / 1000, 2),\n    ['Workflow Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nlet executor_stats = dependencies\n| where name == \"executor.process\"\n| summarize\n    ['Total Executors'] = count(),\n    ['Avg Executor Time'] = round(avg(duration) / 1000, 2),\n    ['Executor Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nworkflow_stats\n| extend dummy = 1\n| join kind=inner (executor_stats | extend dummy = 1) on dummy\n| project-away dummy, dummy1",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -295,7 +295,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Time series showing workflow execution trends over time",
       "fieldConfig": {
@@ -386,6 +386,8 @@
         "y": 7
       },
       "id": 32,
+      "interval": "1h",
+      "maxDataPoints": 150,
       "options": {
         "legend": {
           "calcs": [
@@ -406,9 +408,9 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name == \"workflow.run\"\n| summarize \n    Successful = countif(success == \"True\"),\n    Failed = countif(success == \"False\")\n    by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name == \"workflow.run\"\n| summarize \n    Successful = countif(success == \"True\"),\n    Failed = countif(success == \"False\")\n    by bin(timestamp, $__interval)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -440,7 +442,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Performance metrics for each executor type",
       "fieldConfig": {
@@ -570,7 +572,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name == \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| extend executor_id = tostring(customDimensions[\"executor.id\"])\n| summarize \n    Count = count(),\n    ['Avg Duration (s)'] = round(avg(duration) / 1000, 2),\n    ['P95 Duration (s)'] = round(percentile(duration, 95) / 1000, 2),\n    ['Success Rate (%)'] = round(countif(success == \"True\") * 100.0 / count(), 1)\n    by ['Executor Type'] = executor_type, ['Executor ID'] = executor_id\n| order by Count desc",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -589,7 +591,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Execution time comparison across different executor types",
       "fieldConfig": {
@@ -685,7 +687,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name == \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| summarize \n    avg = round(avg(duration) / 1000, 2)\n    by executor_type\n| order by avg desc\n| limit 10",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "table",
             "timeColumn": "timestamp"
@@ -717,7 +719,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Interactive table listing recent workflow executions with trace IDs for detailed analysis",
       "fieldConfig": {
@@ -736,7 +738,7 @@
             {
               "targetBlank": false,
               "title": "Open trace",
-              "url": "/d/af-workflow/agent-framework-workflow?var-workflowTraceId=${__data.fields[TraceId]}"
+              "url": "/d/${__dashboard.uid}/agent-framework-workflow?var-workflowTraceId=${__data.fields[TraceId]}"
             }
           ],
           "mappings": [],
@@ -861,7 +863,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 23,
         "x": 0,
         "y": 28
@@ -871,6 +873,7 @@
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -892,7 +895,7 @@
             "dashboardTime": true,
             "query": "// Get workflow.run records\r\nlet workflowRuns = dependencies\r\n| where name == \"workflow.run\"\r\n| extend workflow_id = tostring(customDimensions['workflow.id']);\r\n// Get workflow.build records\r\nlet workflowBuilds = dependencies\r\n| where name == \"workflow.build\"\r\n| extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n| extend workflow_id = tostring(customDimensions['workflow.id']);\r\n// Join workflow.run with workflow.build on workflow_id\r\nworkflowRuns\r\n| join kind=leftouter (\r\n    workflowBuilds\r\n) on workflow_id\r\n| extend executorCount = array_length(bag_keys(workflow_definition.executors))\r\n| project timestamp, workflow_id, duration, success, executorCount, TraceId=operation_Id\r\n| order by timestamp desc ",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -901,7 +904,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           }
         }
       ],
@@ -913,7 +916,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 42,
       "panels": [],
@@ -930,7 +933,7 @@
         "h": 20,
         "w": 23,
         "x": 0,
-        "y": 37
+        "y": 39
       },
       "id": 41,
       "options": {
@@ -945,7 +948,7 @@
             "dashboardTime": true,
             "query": "// Query for node graph visualization - nodes and edges\r\nlet traceId = \"$workflowTraceId\";\r\n// Get workflow definition\r\nlet workflowData = \r\n  dependencies\r\n  | where operation_Id == traceId\r\n  | where name == \"workflow.run\"\r\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n  | join kind=inner (\r\n      dependencies\r\n      | where name == \"workflow.build\"\r\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n  ) on workflow_id\r\n  | project workflow_definition, workflow_id;\r\n// Create nodes\r\nlet nodes = workflowData\r\n| extend executors = workflow_definition.executors\r\n| extend start_executor_id = tostring(workflow_definition.start_executor_id)\r\n| mv-expand executor = bag_keys(executors)\r\n| extend executor_obj = executors[tostring(executor)]\r\n| extend id = tostring(executor)\r\n| extend ['title'] = id\r\n| extend ['mainStat'] = iff(id == start_executor_id, \"START\", \"\")\r\n| extend secondaryStat = tostring(executor_obj.type)\r\n| extend arc__highlighted = iff(id == start_executor_id, 1.0, 0.0)\r\n| extend icon = iff(id == start_executor_id, \"arrow-right\", \"\")\r\n| project id, ['title'], icon;\r\nnodes | extend _type = \"nodes\"",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -960,16 +963,16 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Query for node graph visualization - nodes and edges\r\nlet traceId = \"$workflowTraceId\";\r\n// Get workflow definition\r\nlet workflowData = \r\n  dependencies\r\n  | where operation_Id == traceId\r\n  | where name == \"workflow.run\"\r\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n  | join kind=inner (\r\n      dependencies\r\n      | where name == \"workflow.build\"\r\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n  ) on workflow_id\r\n  | project workflow_definition, workflow_id;\r\n// Create edges - deduplicate to avoid duplicates\r\nlet edges = workflowData  \r\n| extend edge_groups = workflow_definition.edge_groups\r\n| mv-expand edge_group = edge_groups\r\n| mv-expand edge = edge_group.edges\r\n| extend source = tostring(edge.source_id)\r\n| extend target = tostring(edge.target_id)\r\n| extend id = strcat(source, \"_to_\", target)\r\n| extend ['mainStat'] = toreal(1.0)\r\n| distinct id, source, target;\r\n// Combine nodes and edges\r\nedges | extend _type = \"edges\"",
+            "query": "// Query for node graph visualization - nodes and edges\r\nlet traceId = \"$workflowTraceId\";\r\n// Get workflow definition\r\nlet workflowData = \r\n  dependencies\r\n  | where operation_Id == traceId\r\n  | where name == \"workflow.run\"\r\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n  | join kind=inner (\r\n      dependencies\r\n      | where name == \"workflow.build\"\r\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n  ) on workflow_id\r\n  | project workflow_definition, workflow_id;\r\n// Create edges - deduplicate to avoid duplicates\r\nlet edges = workflowData  \r\n| extend edge_groups = workflow_definition.edge_groups\r\n| mv-expand edge_group = edge_groups\r\n| where edge_group.type != \"InternalEdgeGroup\"\r\n| mv-expand edge = edge_group.edges\r\n| extend source = tostring(edge.source_id)\r\n| extend target = tostring(edge.target_id)\r\n| extend id = strcat(source, \"_to_\", target)\r\n| extend ['mainStat'] = toreal(1.0)\r\n| distinct id, source, target;\r\n// Combine nodes and edges\r\nedges | extend _type = \"edges\"",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "hide": false,
           "queryType": "Azure Log Analytics",
@@ -984,7 +987,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 59
       },
       "id": 38,
       "panels": [],
@@ -1001,7 +1004,7 @@
         "h": 33,
         "w": 23,
         "x": 0,
-        "y": 58
+        "y": 60
       },
       "id": 37,
       "options": {
@@ -1024,7 +1027,7 @@
           "azureTraces": {
             "operationId": "$workflowTraceId",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "trace",
             "traceTypes": [
@@ -1059,15 +1062,25 @@
     "list": [
       {
         "current": {},
+        "label": "Data Source",
+        "name": "am_ds",
+        "options": [],
+        "query": "grafana-azure-monitor-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
         "description": "Subscription of the Application Insights",
         "includeAll": false,
         "label": "Subscription",
-        "name": "subscriptionId",
+        "name": "sub",
         "options": [],
         "query": {
           "grafanaTemplateVariableFn": {
@@ -1089,9 +1102,8 @@
           "uid": "${DS_AZURE_MONITOR}"
         },
         "definition": "",
-        "description": "Application Insights Resource Id",
-        "label": "Application Insights",
-        "name": "applicationInsightsResourceId",
+        "label": "Resource Group",
+        "name": "rg",
         "options": [],
         "query": {
           "azureLogAnalytics": {
@@ -1099,89 +1111,70 @@
             "resources": []
           },
           "azureResourceGraph": {
-            "query": "resources\r\n| where [\"type\"] =~ \"microsoft.insights/components\"\r\n| distinct id"
+            "query": "resources\r\n| where type =~ \"microsoft.insights/components\"\r\n| project resourceGroup"
           },
           "queryType": "Azure Resource Graph",
           "refId": "A",
           "subscriptions": [
-            "$subscriptionId"
+            "$sub"
           ]
         },
         "refresh": 1,
         "regex": "",
-        "sort": 5,
         "type": "query"
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Application Insights",
+        "name": "res",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "namespace": "microsoft.insights/components",
+          "queryType": "Azure Resource Names",
+          "refId": "A",
+          "resourceGroup": "$rg",
+          "subscription": "$sub"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
         "definition": "",
         "description": "Trace Id for workflow execution analysis",
+        "hide": 2,
         "label": "Workflow Trace Id",
         "name": "workflowTraceId",
         "options": [],
         "query": {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\r\n| where name == \"workflow.run\"\r\n| order by duration desc \r\n| distinct operation_Id\r\n| limit 20",
+            "query": "dependencies\r\n| distinct operation_Id\r\n| limit 50",
             "resources": [
-              "/subscriptions/d21a525e-7c86-486d-a79e-a4f3622f639a/resourceGroups/agent-sample-2509-rg/providers/microsoft.insights/components/agent-framework-2509"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "timeColumn": "timestamp"
           },
           "queryType": "Azure Log Analytics",
-          "refId": "A",
-          "subscription": ""
+          "refId": "A"
         },
         "refresh": 2,
         "regex": "",
         "type": "query"
-      },
-      {
-        "auto": true,
-        "auto_count": 30,
-        "auto_min": "10s",
-        "current": {
-          "text": "$__auto",
-          "value": "$__auto"
-        },
-        "description": "Time interval for data aggregation",
-        "label": "Interval",
-        "name": "interval",
-        "options": [
-          {
-            "selected": false,
-            "text": "10m",
-            "value": "10m"
-          },
-          {
-            "selected": false,
-            "text": "30m",
-            "value": "30m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "12h",
-            "value": "12h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          }
-        ],
-        "query": "10m,30m,1h,6h,12h,1d",
-        "refresh": 2,
-        "type": "interval"
       }
     ]
   },
@@ -1192,7 +1185,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Agent Framework Workflow",
-  "uid": "af-workflow",
-  "version": 72,
+  "uid": "AgentFrameworkWorkflow",
+  "version": 97,
   "weekStart": ""
 }

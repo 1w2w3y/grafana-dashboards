@@ -104,14 +104,14 @@
       "title": "Doc",
       "tooltip": "Documentation",
       "type": "link",
-      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/agent-framework/README.md"
+      "url": "https://aka.ms/amg/dash-doc/af-agent"
     }
   ],
   "panels": [
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Key performance indicators for agent operations including total operations executed, token consumption (input and output), and average response time across all agents.",
       "fieldConfig": {
@@ -237,7 +237,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -269,7 +269,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Time series chart showing average, 95th percentile, and 99th percentile response times for agent operations over time to monitor performance trends and identify latency issues.",
       "fieldConfig": {
@@ -334,6 +334,8 @@
         "y": 5
       },
       "id": 1,
+      "interval": "1h",
+      "maxDataPoints": 50,
       "options": {
         "legend": {
           "calcs": [
@@ -355,9 +357,9 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, $__interval)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -376,7 +378,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Percentage of successful agent operations displayed as a gauge with color-coded thresholds: red (0-90%), yellow (90-95%), green (95-100%).",
       "fieldConfig": {
@@ -437,7 +439,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    success_rate = countif(success == \"True\") * 100.0 / count()",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -456,7 +458,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Number of agent operations executed per time interval, displayed as a bar chart to track system utilization and identify peak usage periods.",
       "fieldConfig": {
@@ -517,6 +519,8 @@
         "y": 5
       },
       "id": 3,
+      "interval": "1h",
+      "maxDataPoints": 20,
       "options": {
         "legend": {
           "calcs": [],
@@ -535,9 +539,9 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    operations_count = count() \n    by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    operations_count = count() \n    by bin(timestamp, $__interval)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -569,7 +573,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Stacked time series chart showing input and output token usage trends over time, helping monitor AI model consumption and associated costs.",
       "fieldConfig": {
@@ -661,6 +665,8 @@
         "y": 14
       },
       "id": 4,
+      "interval": "1h",
+      "maxDataPoints": 50,
       "options": {
         "legend": {
           "calcs": [
@@ -681,9 +687,9 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, $__interval)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -702,7 +708,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Donut chart showing the distribution of total token consumption (input + output) across different agents, helping identify which agents consume the most resources.",
       "fieldConfig": {
@@ -761,7 +767,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    total_tokens = sum(input_tokens + output_tokens)\n    by agent_name\n| where isnotempty(agent_name)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "table",
             "timeColumn": "timestamp"
@@ -780,7 +786,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Bar chart estimating daily operational costs based on token consumption and model pricing. Rates are configurable in the query (example: $1.25 per 1M input tokens, $10 per 1M output tokens).",
       "fieldConfig": {
@@ -861,7 +867,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend \n    // Adjust these rates based on your model pricing (example: GPT-5 mini pricing)\n    input_cost = input_tokens * 0.00000025,   // $0.25 per 1M input tokens\n    output_cost = output_tokens * 0.000002    // $2 per 1M output tokens\n| summarize \n    estimated_cost = sum(input_cost + output_cost)\n    by bin(timestamp, 1d)\n| order by timestamp asc",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -893,7 +899,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Table summarizing key performance metrics for each agent including total operations, average response time, and success rate with color-coded success rate indicators.",
       "fieldConfig": {
@@ -1036,7 +1042,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize \n    operations = count(),\n    avg_duration = round(avg(duration) / 1000, 2),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 2)\n    by agent_name\n| order by operations desc",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -1055,7 +1061,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "State timeline visualization showing hourly agent activity levels over time, with color intensity representing operation count per hour for each agent to identify usage patterns.",
       "fieldConfig": {
@@ -1126,7 +1132,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize operations_count = count() by bin(timestamp, 1h), agent_name\n| order by timestamp asc",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -1167,7 +1173,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Overall error percentage displayed as a gauge with color thresholds: green (0-5%), yellow (5-10%), red (>10%) to quickly assess system health.",
       "fieldConfig": {
@@ -1228,8 +1234,9 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    error_rate = round(countif(success == \"False\") * 100.0 / count(), 2)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
+            "resultFormat": "time_series",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -1246,7 +1253,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Time series bar chart showing error count over time to identify error patterns, spikes, and trends for proactive troubleshooting.",
       "fieldConfig": {
@@ -1307,6 +1314,8 @@
         "y": 32
       },
       "id": 10,
+      "interval": "1h",
+      "maxDataPoints": 150,
       "options": {
         "legend": {
           "calcs": [],
@@ -1325,10 +1334,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, $interval)",
+            "query": "dependencies \n| where name contains \"invoke_agent\"\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, $__interval)",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
+            "resultFormat": "time_series",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -1345,7 +1355,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Table displaying the 20 most recent failed agent operations with timestamp, agent name, error type, and duration to facilitate quick error analysis and debugging.",
       "fieldConfig": {
@@ -1462,7 +1472,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\" and success == \"False\"\n| extend \n    error_type = tostring(customDimensions[\"error.type\"]),\n    agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| project timestamp, agent_name, error_type, duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -1494,7 +1504,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Horizontal bar chart comparing 50th, 95th, and 99th percentile response times across different agents to identify performance variations and outliers.",
       "fieldConfig": {
@@ -1573,7 +1583,7 @@
             "dashboardTime": true,
             "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize \n    p50 = percentile(duration, 50) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by agent_name",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "time_series",
             "timeColumn": "timestamp"
@@ -1605,7 +1615,7 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Interactive table listing recent agent operations with timestamp, agent name, duration, and token usage. Click any row to drill down into detailed trace information for that specific operation.",
       "fieldConfig": {
@@ -1624,7 +1634,7 @@
             {
               "targetBlank": false,
               "title": "Open trace with trace Id \"${__data.fields[TraceId]}\"",
-              "url": "/d/agent-framework/agent-framework?var-agentTraceId=${__data.fields[TraceId]}"
+              "url": "/d/${__dashboard.uid}/agent-framework?var-agentTraceId=${__data.fields[TraceId]}"
             }
           ],
           "mappings": [],
@@ -1699,6 +1709,10 @@
               {
                 "id": "unit",
                 "value": "ms"
+              },
+              {
+                "id": "custom.width",
+                "value": 122
               }
             ]
           },
@@ -1734,11 +1748,23 @@
                 "value": 77
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agent"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 287
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 21,
         "x": 0,
         "y": 67
@@ -1748,6 +1774,7 @@
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -1758,7 +1785,7 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "duration"
+            "displayName": "timestamp"
           }
         ]
       },
@@ -1769,7 +1796,7 @@
             "dashboardTime": true,
             "query": "dependencies\r\n| where name contains \"invoke_agent\"\r\n| extend Agent = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| extend input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]), output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\r\n| project timestamp, Agent, success, duration, input_tokens, output_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "logs",
             "timeColumn": "timestamp"
@@ -1790,7 +1817,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 75
       },
       "id": 27,
       "panels": [],
@@ -1800,14 +1827,14 @@
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Detailed trace visualization showing the complete execution flow of a selected agent operation, including all dependencies, timing, and hierarchical span relationships for debugging and performance analysis.",
       "gridPos": {
         "h": 27,
         "w": 21,
         "x": 0,
-        "y": 75
+        "y": 76
       },
       "id": 28,
       "options": {
@@ -1830,7 +1857,7 @@
           "azureTraces": {
             "operationId": "$agentTraceId",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "resultFormat": "trace",
             "traceTypes": [
@@ -1847,7 +1874,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           }
         }
       ],
@@ -1863,6 +1890,16 @@
     "list": [
       {
         "current": {},
+        "label": "Data Source",
+        "name": "am_ds",
+        "options": [],
+        "query": "grafana-azure-monitor-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${DS_AZURE_MONITOR}"
@@ -1871,7 +1908,7 @@
         "description": "Subscription of the Application Insights",
         "includeAll": false,
         "label": "Subscription",
-        "name": "subscriptionId",
+        "name": "sub",
         "options": [],
         "query": {
           "grafanaTemplateVariableFn": {
@@ -1890,12 +1927,11 @@
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
-        "description": "Application Insights Resource Id",
-        "label": "Application Insights",
-        "name": "applicationInsightsResourceId",
+        "label": "Resource Group",
+        "name": "rg",
         "options": [],
         "query": {
           "azureLogAnalytics": {
@@ -1903,13 +1939,38 @@
             "resources": []
           },
           "azureResourceGraph": {
-            "query": "resources\r\n| where [\"type\"] =~ \"microsoft.insights/components\"\r\n| distinct id"
+            "query": "resources\r\n| where type =~ \"microsoft.insights/components\"\r\n| project resourceGroup"
           },
           "queryType": "Azure Resource Graph",
           "refId": "A",
           "subscriptions": [
-            "$subscriptionId"
+            "$sub"
           ]
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "label": "Application Insights",
+        "name": "res",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "query": "",
+            "resources": []
+          },
+          "namespace": "microsoft.insights/components",
+          "queryType": "Azure Resource Names",
+          "refId": "A",
+          "resourceGroup": "$rg",
+          "subscription": "$sub"
         },
         "refresh": 1,
         "regex": "",
@@ -1918,8 +1979,13 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
         "definition": "",
         "description": "Trace Id of the agent operations",
+        "hide": 2,
         "label": "Trace Id",
         "name": "agentTraceId",
         "options": [],
@@ -1928,64 +1994,16 @@
             "dashboardTime": true,
             "query": "dependencies\r\n| distinct operation_Id\r\n| limit 50",
             "resources": [
-              "$applicationInsightsResourceId"
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
             "timeColumn": "timestamp"
           },
           "queryType": "Azure Log Analytics",
-          "refId": "A",
-          "subscription": "CED61727-2249-45AC-9149-FE9D0AC99A17"
+          "refId": "A"
         },
         "refresh": 2,
         "regex": "",
         "type": "query"
-      },
-      {
-        "auto": true,
-        "auto_count": 30,
-        "auto_min": "10m",
-        "current": {
-          "text": "$__auto",
-          "value": "$__auto"
-        },
-        "description": "Time interval for data aggregation",
-        "label": "Interval",
-        "name": "interval",
-        "options": [
-          {
-            "selected": false,
-            "text": "10m",
-            "value": "10m"
-          },
-          {
-            "selected": false,
-            "text": "30m",
-            "value": "30m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "12h",
-            "value": "12h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          }
-        ],
-        "query": "10m,30m,1h,6h,12h,1d",
-        "refresh": 2,
-        "type": "interval"
       }
     ]
   },
@@ -1996,7 +2014,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Agent Framework",
-  "uid": "agent-framework",
-  "version": 66,
+  "uid": "AgentFramework",
+  "version": 9,
   "weekStart": ""
 }

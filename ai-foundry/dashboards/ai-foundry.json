@@ -52,7 +52,7 @@
       }
     ]
   },
-  "description": "Visulization for monitoring Azure AI Foundry usage and latency across model deployments in a single Grafana dashboard.",
+  "description": "Visualization for monitoring Azure AI Foundry usage and latency across model deployments in a single Grafana dashboard.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -68,20 +68,20 @@
       "title": "Doc",
       "tooltip": "Documentation",
       "type": "link",
-      "url": "https://github.com/1w2w3y/grafana-dashboards/blob/master/ai-foundry/README.md"
+      "url": "https://aka.ms/amg/dash-doc/ai-foundry"
     }
   ],
   "panels": [
     {
       "datasource": {
         "type": "grafana-azure-monitor-datasource",
-        "uid": "${DS_AZURE_MONITOR}"
+        "uid": "${am_ds}"
       },
       "description": "Estimated cost calculated from input and output token usage with model-specific pricing",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic-by-name"
           },
           "mappings": [],
           "thresholds": {
@@ -155,9 +155,9 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
             "timeGrain": "auto"
@@ -168,7 +168,7 @@
           },
           "queryType": "Azure Monitor",
           "refId": "inputToken",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         },
         {
           "azureMonitor": {
@@ -199,24 +199,24 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
             "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "hide": false,
           "queryType": "Azure Monitor",
           "refId": "outputToken",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
-      "title": "Estimated Cost by model",
+      "title": "Estimated Cost",
       "transformations": [
         {
           "id": "calculateField",
@@ -1908,9 +1908,25 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "palette-classic"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -1926,11 +1942,9 @@
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
+          "calcs": [],
           "fields": "",
-          "values": false
+          "values": true
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -1969,23 +1983,44 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
             "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Input Tokens",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Field"
+              }
+            ]
+          }
+        }
+      ],
       "type": "stat"
     },
     {
@@ -2011,9 +2046,25 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "palette-classic"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -2033,7 +2084,7 @@
             "sum"
           ],
           "fields": "",
-          "values": false
+          "values": true
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -2072,23 +2123,44 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
             "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Output Tokens",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Field"
+              }
+            ]
+          }
+        }
+      ],
       "type": "stat"
     },
     {
@@ -2110,8 +2182,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2129,7 +2201,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2158,6 +2230,8 @@
         "y": 12
       },
       "id": 2,
+      "interval": "1m",
+      "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [],
@@ -2204,20 +2278,20 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
-            "timeGrain": "PT1H"
+            "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Model requests",
@@ -2242,8 +2316,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2261,7 +2335,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2290,6 +2364,8 @@
         "y": 28
       },
       "id": 8,
+      "interval": "1m",
+      "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [],
@@ -2336,20 +2412,20 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
-            "timeGrain": "PT1H"
+            "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Total Tokens",
@@ -2374,8 +2450,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2393,7 +2469,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2422,6 +2498,8 @@
         "y": 45
       },
       "id": 4,
+      "interval": "1m",
+      "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [],
@@ -2468,20 +2546,20 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
-            "timeGrain": "PT1H"
+            "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Input Tokens",
@@ -2506,8 +2584,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2525,7 +2603,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2554,6 +2632,8 @@
         "y": 62
       },
       "id": 5,
+      "interval": "1m",
+      "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [],
@@ -2600,20 +2680,20 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
-            "timeGrain": "PT1H"
+            "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Output Tokens",
@@ -2687,6 +2767,8 @@
         "y": 79
       },
       "id": 7,
+      "interval": "1m",
+      "maxDataPoints": 150,
       "options": {
         "legend": {
           "calcs": [],
@@ -2733,20 +2815,20 @@
               {
                 "metricNamespace": "Microsoft.CognitiveServices/accounts",
                 "region": "$region",
-                "resourceGroup": "$resourceGroup",
-                "resourceName": "$resourceName",
-                "subscription": "$subscriptionId"
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
               }
             ],
-            "timeGrain": "PT1H"
+            "timeGrain": "auto"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "A",
-          "subscription": "$subscriptionId"
+          "subscription": "$sub"
         }
       ],
       "title": "Time to Last Byte",
@@ -2763,15 +2845,25 @@
     "list": [
       {
         "current": {},
+        "label": "Data Source",
+        "name": "am_ds",
+        "options": [],
+        "query": "grafana-azure-monitor-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${DS_AZURE_MONITOR}"
         },
         "definition": "",
-        "description": "Subscription of the Azure AI Foundry",
+        "description": "",
         "includeAll": false,
         "label": "Subscription",
-        "name": "subscriptionId",
+        "name": "sub",
         "options": [],
         "query": {
           "grafanaTemplateVariableFn": {
@@ -2783,7 +2875,29 @@
         },
         "refresh": 1,
         "regex": "",
-        "sort": 1,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${am_ds}"
+        },
+        "definition": "",
+        "label": "Resource Group",
+        "name": "rg",
+        "options": [],
+        "query": {
+          "azureResourceGraph": {
+            "query": "resources\n| where type =~ \"Microsoft.CognitiveServices/accounts\"\n| project resourceGroup"
+          },
+          "queryType": "Azure Resource Graph",
+          "refId": "A",
+          "subscriptions": [
+            "$sub"
+          ]
+        },
         "type": "query"
       },
       {
@@ -2793,87 +2907,43 @@
           "uid": "${DS_AZURE_MONITOR}"
         },
         "definition": "",
-        "description": "Azure AI Foundry Resource Id",
         "label": "AI Foundry",
-        "name": "aiFoundryResourceId",
-        "options": [],
-        "query": {
-          "azureLogAnalytics": {
-            "query": "",
-            "resources": []
-          },
-          "azureResourceGraph": {
-            "query": "resources\n| where ['type'] =~ 'Microsoft.CognitiveServices/accounts'\n| distinct id"
-          },
-          "queryType": "Azure Resource Graph",
-          "refId": "A",
-          "subscriptions": [
-            "$subscriptionId"
-          ]
-        },
-        "refresh": 1,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
-        },
-        "hide": 2,
-        "name": "resourceGroup",
-        "options": [],
-        "query": {
-          "azureResourceGraph": {
-            "query": "resources\n| where id == '$aiFoundryResourceId'\n| project resourceGroup"
-          },
-          "queryType": "Azure Resource Graph",
-          "refId": "A",
-          "subscriptions": [
-            "$subscriptionId"
-          ]
-        },
-        "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
-        },
-        "hide": 2,
-        "name": "resourceName",
+        "name": "res",
         "options": [],
         "query": {
           "azureResourceGraph": {
             "query": "resources\n| where id == '$aiFoundryResourceId'\n| project name"
           },
-          "queryType": "Azure Resource Graph",
+          "namespace": "microsoft.cognitiveservices/accounts",
+          "queryType": "Azure Resource Names",
           "refId": "A",
+          "resourceGroup": "$rg",
+          "subscription": "$sub",
           "subscriptions": [
-            "$subscriptionId"
+            "$sub"
           ]
         },
+        "sort": 5,
         "type": "query"
       },
       {
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
+        "definition": "",
         "hide": 2,
         "name": "region",
         "options": [],
         "query": {
           "azureResourceGraph": {
-            "query": "resources\n| where id == '${aiFoundryResourceId}'\n| project location"
+            "query": "resources\n| where id == '/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.CognitiveServices/accounts/$res'\n| project location"
           },
           "queryType": "Azure Resource Graph",
           "refId": "A",
           "subscriptions": [
-            "$subscriptionId"
+            "$sub"
           ]
         },
         "type": "query"
@@ -2886,9 +2956,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "10s",
-      "30s",
-      "1m",
       "5m",
       "15m",
       "30m",
@@ -2899,7 +2966,7 @@
   },
   "timezone": "browser",
   "title": "AI Foundry",
-  "uid": "ai-foundry",
-  "version": 95,
+  "uid": "AIFoundry",
+  "version": 3,
   "weekStart": ""
 }
