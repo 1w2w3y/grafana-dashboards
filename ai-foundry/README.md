@@ -1,6 +1,6 @@
 # AI Foundry
 
-Visulization for monitoring Azure AI Foundry usage and latency across model deployments in a single Grafana dashboard.
+Visulization for monitoring Azure AI Foundry usage and latency across model deployments in a single Grafana dashboard. Try this for free inside Azure portal: http://aka.ms/amg/dash/ai-foundry
 
 ## Screenshots
 ![ai-foundry-top-section](https://github.com/1w2w3y/grafana-dashboards/raw/master/ai-foundry/ai-foundry-top-section.png)
@@ -50,3 +50,4 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 - 9/8/2025 Initial version for Grafana 11.6
 - 9/30/2025 Update to more suitable metrics and improved layout
 - 10/10/2025 add estimated cost panel
+- 1/5/2026 update estimated cost with more models like GPT-5.2 and Claude Opus 4.5; add a price scale variable for adjusting cost estimates based on negotiated pricing.
