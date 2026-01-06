@@ -164,7 +164,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Monitor",
           "refId": "inputToken",
@@ -4682,7 +4682,7 @@
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
         "description": "",
@@ -4729,7 +4729,7 @@
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
         "label": "AI Foundry",
