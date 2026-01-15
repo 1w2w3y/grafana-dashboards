@@ -51,3 +51,4 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 - 9/30/2025 Update to more suitable metrics and improved layout
 - 10/10/2025 add estimated cost panel
 - 1/5/2026 update estimated cost with more models like GPT-5.2 and Claude Opus 4.5; add a price scale variable for adjusting cost estimates based on negotiated pricing.
+- 1/15/2026 add cost calculation for GPT-5.2-codex; add labels with values for each panel
