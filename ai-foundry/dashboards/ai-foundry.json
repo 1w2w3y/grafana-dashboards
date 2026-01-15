@@ -2669,6 +2669,78 @@
         {
           "id": "calculateField",
           "options": {
+            "alias": "gpt-5.2-codex_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.2-codex_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000175"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.2-codex_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.2-codex_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000014"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.2-codex",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.2-codex_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.2-codex_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
             "alias": "kimi-k2-thinking_input_cost",
             "binary": {
               "left": {
@@ -3573,6 +3645,22 @@
         {
           "id": "calculateField",
           "options": {
+            "alias": "gpt-5.2-codex_scaled",
+            "binary": {
+              "left": "gpt-5.2-codex",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
             "alias": "kimi-k2-thinking_scaled",
             "binary": {
               "left": "kimi-k2-thinking",
@@ -3689,6 +3777,7 @@
               "gpt-5.1-codex_scaled": "gpt-5.1-codex",
               "gpt-5.1_scaled": "gpt-5.1",
               "gpt-5.2-chat_scaled": "gpt-5.2-chat",
+              "gpt-5.2-codex_scaled": "gpt-5.2-codex",
               "gpt-5.2_scaled": "gpt-5.2",
               "gpt-5_scaled": "gpt-5",
               "gpt-image-1-mini_scaled": "gpt-image-1-mini",
@@ -4049,7 +4138,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 16,
+        "h": 13,
         "w": 20,
         "x": 0,
         "y": 12
@@ -4059,7 +4148,9 @@
       "maxDataPoints": 30,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "sum"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -4127,6 +4218,147 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
+      "description": "For streaming and non-streaming requests; time it takes for last byte of response data to be received after request is made by model. Applies to PTU, PTU-managed, and Pay-as-you-go deployments.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 21,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 20,
+        "x": 0,
+        "y": 25
+      },
+      "id": 7,
+      "interval": "1m",
+      "maxDataPoints": 60,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.3",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Average",
+            "alias": "{{modeldeploymentname}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "ModelDeploymentName",
+                "filters": [
+                  "__Empty"
+                ],
+                "operator": "ne"
+              }
+            ],
+            "metricName": "AzureOpenAITTLTInMS",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
+              }
+            ],
+            "timeGrain": "auto"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$sub"
+        }
+      ],
+      "title": "Average Latency (Time to Last Byte)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
       "description": "Number of inference tokens processed on a model. Calculated as prompt tokens (input) plus generated tokens (output). Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
@@ -4186,14 +4418,16 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 28
+        "y": 38
       },
       "id": 8,
       "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "sum"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -4320,14 +4554,16 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 45
+        "y": 55
       },
       "id": 4,
       "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "sum"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -4454,14 +4690,16 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 62
+        "y": 72
       },
       "id": 5,
       "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "sum"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -4522,141 +4760,6 @@
         }
       ],
       "title": "Output Tokens",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "For streaming and non-streaming requests; time it takes for last byte of response data to be received after request is made by model. Applies to PTU, PTU-managed, and Pay-as-you-go deployments.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 17,
-        "w": 20,
-        "x": 0,
-        "y": 79
-      },
-      "id": 7,
-      "interval": "1m",
-      "maxDataPoints": 150,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.3",
-      "targets": [
-        {
-          "azureMonitor": {
-            "aggregation": "Average",
-            "alias": "{{modeldeploymentname}}",
-            "allowedTimeGrainsMs": [
-              60000,
-              300000,
-              900000,
-              1800000,
-              3600000,
-              21600000,
-              43200000,
-              86400000
-            ],
-            "customNamespace": "microsoft.cognitiveservices/accounts",
-            "dimensionFilters": [
-              {
-                "dimension": "ModelDeploymentName",
-                "filters": [
-                  "__Empty"
-                ],
-                "operator": "ne"
-              }
-            ],
-            "metricName": "AzureOpenAITTLTInMS",
-            "metricNamespace": "microsoft.cognitiveservices/accounts",
-            "region": "$region",
-            "resources": [
-              {
-                "metricNamespace": "Microsoft.CognitiveServices/accounts",
-                "region": "$region",
-                "resourceGroup": "$rg",
-                "resourceName": "$res",
-                "subscription": "$sub"
-              }
-            ],
-            "timeGrain": "auto"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          },
-          "queryType": "Azure Monitor",
-          "refId": "A",
-          "subscription": "$sub"
-        }
-      ],
-      "title": "Time to Last Byte",
       "type": "timeseries"
     }
   ],
@@ -4812,6 +4915,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "AIFoundry",
-  "version": 23,
+  "version": 32,
   "weekStart": ""
 }
