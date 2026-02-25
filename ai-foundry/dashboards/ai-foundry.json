@@ -15,13 +15,13 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.6.3"
+      "version": "11.6.9"
     },
     {
       "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
-      "version": "11.6.4"
+      "version": "11.6.9"
     },
     {
       "type": "panel",
@@ -124,7 +124,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -2165,6 +2165,78 @@
         {
           "id": "calculateField",
           "options": {
+            "alias": "claude-opus-4-6_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-6_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-6_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-6_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-6",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-6_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-6_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
             "alias": "claude-sonnet-4-5_input_cost",
             "binary": {
               "left": {
@@ -3101,6 +3173,150 @@
         {
           "id": "calculateField",
           "options": {
+            "alias": "gpt-5.3-codex_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-codex_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000175"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-codex_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-codex_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000014"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-codex",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-codex_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-codex_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.5_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.5_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000006"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.5_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.5_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.5",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.5_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.5_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
             "alias": "gpt-5_scaled",
             "binary": {
               "left": "gpt-5",
@@ -3533,6 +3749,22 @@
         {
           "id": "calculateField",
           "options": {
+            "alias": "claude-opus-4-6_scaled",
+            "binary": {
+              "left": "claude-opus-4-6",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
             "alias": "claude-sonnet-4-5_scaled",
             "binary": {
               "left": "claude-sonnet-4-5",
@@ -3739,6 +3971,38 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-codex_scaled",
+            "binary": {
+              "left": "gpt-5.3-codex",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.5_scaled",
+            "binary": {
+              "left": "Kimi-K2.5",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
@@ -3753,9 +4017,11 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
+              "Kimi-K2.5_scaled": "Kimi-K2.5",
               "claude-haiku-4-5_scaled": "claude-haiku-4-5",
               "claude-opus-4-1_scaled": "claude-opus-4-1",
               "claude-opus-4-5_scaled": "claude-opus-4-5",
+              "claude-opus-4-6_scaled": "claude-opus-4-6",
               "claude-sonnet-4-5_scaled": "claude-sonnet-4-5",
               "deepseek-r1-0528_scaled": "deepseek-r1-0528",
               "deepseek-v3.1_scaled": "deepseek-v3.1",
@@ -3779,6 +4045,7 @@
               "gpt-5.2-chat_scaled": "gpt-5.2-chat",
               "gpt-5.2-codex_scaled": "gpt-5.2-codex",
               "gpt-5.2_scaled": "gpt-5.2",
+              "gpt-5.3-codex_scaled": "gpt-5.3-codex",
               "gpt-5_scaled": "gpt-5",
               "gpt-image-1-mini_scaled": "gpt-image-1-mini",
               "gpt-image-1.5_scaled": "gpt-image-1.5",
@@ -3864,7 +4131,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4004,7 +4271,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4161,7 +4428,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4211,6 +4478,145 @@
         }
       ],
       "title": "Model requests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Percentage of prompt tokens that matched the cache. Higher rates indicate better prompt cache utilization, reducing latency and cost for repeated or similar prompts. Applies to models with prompt caching enabled (e.g., GPT-4o, o1).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 21,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 20,
+        "x": 0,
+        "y": 25
+      },
+      "id": 14,
+      "interval": "1m",
+      "maxDataPoints": 60,
+      "options": {
+        "legend": {
+          "calcs": [
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Average",
+            "alias": "{{modeldeploymentname}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "ModelDeploymentName",
+                "filters": [],
+                "operator": "eq"
+              }
+            ],
+            "metricName": "AzureOpenAIContextTokensCacheMatchRate",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
+              }
+            ],
+            "timeGrain": "auto"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$sub"
+        }
+      ],
+      "title": "Token Cache Match Rate",
       "type": "timeseries"
     },
     {
@@ -4282,7 +4688,7 @@
         "h": 13,
         "w": 20,
         "x": 0,
-        "y": 25
+        "y": 38
       },
       "id": 7,
       "interval": "1m",
@@ -4302,7 +4708,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4418,7 +4824,7 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 38
+        "y": 51
       },
       "id": 8,
       "interval": "1m",
@@ -4438,7 +4844,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4554,7 +4960,7 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 55
+        "y": 68
       },
       "id": 4,
       "interval": "1m",
@@ -4574,7 +4980,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4690,7 +5096,7 @@
         "h": 17,
         "w": 20,
         "x": 0,
-        "y": 72
+        "y": 85
       },
       "id": 5,
       "interval": "1m",
@@ -4710,7 +5116,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureMonitor": {
@@ -4915,6 +5321,6 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "AIFoundry",
-  "version": 32,
+  "version": 40,
   "weekStart": ""
 }
