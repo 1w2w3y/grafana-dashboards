@@ -15,6 +15,22 @@ Preview:
 
 ---
 
+## Claude Code
+- Details and setup: [./claude-code/README.md](./claude-code/README.md)
+
+Preview:
+![Claude Code](./claude-code/claude-code-main.png)
+
+---
+
+## GitHub Copilot
+- Details and setup: [./github-copilot/README.md](./github-copilot/README.md)
+
+Preview:
+![GitHub Copilot](./github-copilot/github-copilot-main.png)
+
+---
+
 ## Azure AI Foundry
 - Details and setup: [./ai-foundry/README.md](./ai-foundry/README.md)  
 - Gallery ID: `24039`  
@@ -88,6 +104,8 @@ You can import these dashboards into Grafana in two ways:
   - `./ai-foundry/dashboards/ai-foundry.json`
   - `./litellm-azmon/dashboards/litellm-azmon.json`
   - `./litellm-trace/dashboards/litellm-trace.json`
+  - `./claude-code/dashboards/claude-code.json`
+  - `./github-copilot/dashboards/github-copilot.json`
 
 Note: Some dashboards expect specific data sources (for example, Azure Monitor). Ensure the corresponding data sources are configured in Grafana for the panels to populate correctly.
 
