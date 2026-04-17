@@ -2,6 +2,9 @@
 
 Monitoring dashboard for OpenClaw gateway usage via Application Insights OpenTelemetry data. Tracks message processing across channels (WhatsApp, WeChat), LLM token consumption and cost, response latency, stuck sessions, and gateway errors. Includes a recent-messages table with trace drill-down for debugging individual interactions.
 
+## Screenshots
+![OpenClaw – Main](https://github.com/1w2w3y/grafana-dashboards/raw/master/openclaw/openclaw-main.png)
+
 ## Issues and feedback
 https://github.com/1w2w3y/grafana-dashboards/issues
 

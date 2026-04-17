@@ -34,6 +34,9 @@ Preview:
 ## OpenClaw
 - Details and setup: [./openclaw/README.md](./openclaw/README.md)
 
+Preview:
+![OpenClaw](./openclaw/openclaw-main.png)
+
 ---
 
 ## Azure AI Foundry
