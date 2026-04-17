@@ -31,6 +31,11 @@ Preview:
 
 ---
 
+## OpenClaw
+- Details and setup: [./openclaw/README.md](./openclaw/README.md)
+
+---
+
 ## Azure AI Foundry
 - Details and setup: [./ai-foundry/README.md](./ai-foundry/README.md)  
 - Gallery ID: `24039`  
@@ -106,6 +111,7 @@ You can import these dashboards into Grafana in two ways:
   - `./litellm-trace/dashboards/litellm-trace.json`
   - `./claude-code/dashboards/claude-code.json`
   - `./github-copilot/dashboards/github-copilot.json`
+  - `./openclaw/dashboards/openclaw.json`
 
 Note: Some dashboards expect specific data sources (for example, Azure Monitor). Ensure the corresponding data sources are configured in Grafana for the panels to populate correctly.
 
