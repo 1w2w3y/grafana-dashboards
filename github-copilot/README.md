@@ -49,7 +49,7 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 
 ## Requirements
 - Grafana 11.6+ with the Azure Monitor data source configured with access to the subscription containing your Application Insights resource.
-- GitHub Copilot telemetry data flowing into Application Insights via OpenTelemetry.
+- GitHub Copilot telemetry data flowing into Application Insights via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end setup (OTel Collector + per-app OTLP config).
 
 ## Change history
 - 3/23/2026 Initial version

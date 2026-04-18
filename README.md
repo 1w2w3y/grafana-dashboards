@@ -118,6 +118,10 @@ You can import these dashboards into Grafana in two ways:
 
 Note: Some dashboards expect specific data sources (for example, Azure Monitor). Ensure the corresponding data sources are configured in Grafana for the panels to populate correctly.
 
+# Data Ingestion
+
+Several dashboards — **Claude Code**, **GitHub Copilot**, and **OpenClaw** — rely on Application Insights telemetry ingested via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end pipeline: OpenTelemetry Collector setup with the Azure Monitor Exporter, per-application OTLP configuration, and verification.
+
 ## License
 
 This repository is licensed under the [MIT License](./LICENSE).
