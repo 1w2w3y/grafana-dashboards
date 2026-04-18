@@ -49,6 +49,14 @@ service:
       exporters: [azuremonitor]
 ```
 
+### Run with Docker
+
+Save the config above as `otel-collector-config.yaml`, then start the collector with the `contrib` image (which includes the Azure Monitor exporter):
+
+```bash
+docker run -d --name otel-collector -p 4318:4318 -p 4317:4317 -v $(pwd)/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml otel/opentelemetry-collector-contrib:latest
+```
+
 Notes:
 - Get the `connection_string` from your Application Insights resource (Azure Portal → Application Insights → Overview → **Connection String**).
 - Expose the collector at a stable, reachable endpoint — e.g. `https://otel.<region>.<your-domain>`. The examples below assume `https://otel.wus2.sample-dev.azgrafana-test.io`.
