@@ -59,7 +59,7 @@ docker run -d --name otel-collector -p 4318:4318 -p 4317:4317 -v $(pwd)/otel-col
 
 Notes:
 - Get the `connection_string` from your Application Insights resource (Azure Portal → Application Insights → Overview → **Connection String**).
-- Expose the collector at a stable, reachable endpoint — e.g. `https://otel.<region>.<your-domain>`. The examples below assume `https://otel.wus2.sample-dev.azgrafana-test.io`.
+- The examples below assume the collector is running locally, reachable at `http://localhost:4318`. For a shared/remote collector, substitute your own endpoint.
 - The OTLP/HTTP receiver listens on port `4318` by default; all three applications documented here use OTLP/HTTP.
 
 ## 2. Configure each application
@@ -74,15 +74,9 @@ Add to VS Code `settings.json`:
 
 ```json
 {
-    "editor.renderWhitespace": "all",
-    "editor.formatOnSave": true,
-    "chatgpt.config": {
-        "preferred_auth_method": "apikey"
-    },
-    "chat.agent.maxRequests": 250,
-    "github.copilot.chat.otel.enabled": false,
+    "github.copilot.chat.otel.enabled": true,
     "github.copilot.chat.otel.exporterType": "otlp-http",
-    "github.copilot.chat.otel.otlpEndpoint": "https://otel.wus2.sample-dev.azgrafana-test.io",
+    "github.copilot.chat.otel.otlpEndpoint": "http://localhost:4318",
     "github.copilot.chat.otel.captureContent": true
 }
 ```
@@ -102,7 +96,7 @@ Add to the Claude Code `settings.json`:
     "OTEL_METRICS_EXPORTER": "otlp",
     "OTEL_LOGS_EXPORTER": "otlp",
     "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://otel.wus2.sample-dev.azgrafana-test.io",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4318",
     "OTEL_LOG_USER_PROMPTS": "1",
     "OTEL_LOG_TOOL_DETAILS": "1",
     "OTEL_METRICS_INCLUDE_VERSION": "true"
@@ -121,7 +115,7 @@ Add to the gateway's telemetry config:
 ```json
 {
   "enabled": true,
-  "endpoint": "https://otel.wus2.sample-dev.azgrafana-test.io",
+  "endpoint": "http://localhost:4318",
   "protocol": "http/protobuf",
   "serviceName": "openclaw-gateway",
   "traces": true,
