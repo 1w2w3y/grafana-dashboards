@@ -36,7 +36,8 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 
 ## Requirements
 - Grafana 11.6+ with the Azure Monitor data source configured with access to the subscription containing your Application Insights resource.
-- OpenClaw gateway telemetry flowing into Application Insights via OpenTelemetry with `cloud_RoleName = "openclaw-gateway"` and `openclaw.*` custom dimensions. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end setup (OTel Collector + per-app OTLP config).
+- OpenClaw gateway telemetry flowing into Application Insights via OpenTelemetry with `cloud_RoleName = "openclaw-gateway"` and `openclaw.*` custom dimensions. See [Ingest data into Application Insights via OpenTelemetry Collector](https://aka.ms/amg/dash-doc/otlp-appinsights) for the end-to-end setup — running the OTel Collector with the Azure Monitor Exporter, the OpenClaw gateway telemetry config (`serviceName: "openclaw-gateway"`), and KQL verification queries.
 
 ## Change history
+- 5/1/2026 Point data-ingestion link to the published Microsoft Learn guide (aka.ms/amg/dash-doc/otlp-appinsights)
 - 4/17/2026 Initial version

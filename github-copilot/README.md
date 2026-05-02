@@ -49,7 +49,8 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 
 ## Requirements
 - Grafana 11.6+ with the Azure Monitor data source configured with access to the subscription containing your Application Insights resource.
-- GitHub Copilot telemetry data flowing into Application Insights via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end setup (OTel Collector + per-app OTLP config).
+- GitHub Copilot telemetry data flowing into Application Insights via OpenTelemetry. See [Ingest data into Application Insights via OpenTelemetry Collector](https://aka.ms/amg/dash-doc/otlp-appinsights) for the end-to-end setup — running the OTel Collector with the Azure Monitor Exporter, the VS Code `settings.json` keys (`github.copilot.chat.otel.enabled`, `otlpEndpoint`, etc.), and KQL verification queries against the `dependencies` table (`cloud_RoleName == "copilot-chat"`).
 
 ## Change history
+- 5/1/2026 Point data-ingestion link to the published Microsoft Learn guide (aka.ms/amg/dash-doc/otlp-appinsights)
 - 3/23/2026 Initial version
