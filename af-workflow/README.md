@@ -2,7 +2,7 @@
 
 ![Agent Framework Workflow Dashboard](https://github.com/1w2w3y/grafana-dashboards/raw/master/af-workflow/af-workflow.gif)
 
-Comprehensive monitoring dashboard for **Microsoft Agent Framework Workflows**, tracking workflow executions, executor performance, visual workflow graphs, and detailed trace analysis. Monitor your multi-agent workflows' health, execution paths, success rates, and identify bottlenecks in real-time.
+Comprehensive monitoring dashboard for **Microsoft Agent Framework Workflows**, tracking workflow executions, executor performance, visual workflow graphs, and detailed trace analysis. Monitor multi-agent workflow health, execution paths, executor success rates, and bottlenecks in real-time.
 
 ## 🔄 What are Agent Framework Workflows?
 
@@ -52,7 +52,7 @@ This dashboard answers all these questions and more—with interactive visualiza
 ### 🗺️ Interactive Workflow Selection
 - **Workflow Run Table**: Browse recent executions with trace IDs
 - **Quick Navigation**: Click any workflow to dive into detailed analysis
-- **Execution Details**: View duration, success status, executor count, and timestamps
+- **Execution Details**: View workflow ID, duration, success status, executor count, and timestamps
 - **Trace Integration**: Seamless navigation to distributed tracing views
 
 ### 🔍 Visual Workflow Graph
@@ -68,6 +68,27 @@ This dashboard answers all these questions and more—with interactive visualiza
 - **Performance Deep-Dive**: Identify slow executors and bottlenecks
 - **Error Investigation**: Drill down into failed executions to find root causes
 - **Execution Timeline**: See the full span of your workflow execution with timing data
+
+## How it works
+
+- Grafana queries Application Insights through the Azure Monitor data source using Log Analytics (KQL) against `dependencies`, `requests`, and `traces`.
+- Workflow summary and trend panels use `dependencies` where `name == "workflow_invoke"`.
+- Executor panels use `dependencies` where `name startswith "executor.process"` and group by `executor.type` and `executor.id`.
+- The workflow run table joins `workflow_invoke` spans with `workflow.build` spans on `workflow.id` to show executor counts and trace IDs.
+- The Executor Map node graph reads `workflow.definition` from `workflow.build` telemetry and renders executor nodes and edges for the selected workflow trace.
+- Variables:
+  - `am_ds` — Azure Monitor data source
+  - `sub` — Azure subscription
+  - `rg` — Resource group
+  - `res` — Application Insights resource
+  - `workflowTraceId` — Hidden trace selector for workflow drill-down
+- Default time range is 7 days; default refresh is 30 minutes.
+
+## Requirements
+
+- Grafana 11.6+ with the Azure Monitor data source configured with access to the subscription containing your Application Insights resource.
+- Microsoft Agent Framework workflow telemetry flowing into Application Insights with spans for `workflow_invoke`, `workflow.build`, and `executor.process*`.
+- Workflow telemetry should include `workflow.id`, `workflow.definition`, `executor.type`, and `executor.id` custom dimensions for the summary, executor, and node graph panels to populate.
 
 ## 💡 Pro Tips
 
@@ -92,6 +113,11 @@ Found a bug or have a feature request?
 - [Agent Framework GitHub Repository](https://github.com/microsoft/agent-framework)
 - [Azure Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
 - [Grafana Documentation](https://grafana.com/docs/)
+
+## Change history
+
+- 5/8/2026 Update workflow run selection, executor map, and trace documentation for the current dashboard JSON.
+- 10/5/2025 Initial version.
 
 ---
 
