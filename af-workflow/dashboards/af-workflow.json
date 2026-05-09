@@ -21,13 +21,13 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.6.3"
+      "version": "11.6.9"
     },
     {
       "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
-      "version": "11.6.4"
+      "version": "11.6.9"
     },
     {
       "type": "panel",
@@ -233,7 +233,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -256,12 +256,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let workflow_stats = dependencies \n| where name == \"workflow.run\"\n| summarize \n    ['Total Workflows'] = count(),\n    ['Avg Workflow Time'] = round(avg(duration) / 1000, 2),\n    ['Workflow Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nlet executor_stats = dependencies\n| where name == \"executor.process\"\n| summarize\n    ['Total Executors'] = count(),\n    ['Avg Executor Time'] = round(avg(duration) / 1000, 2),\n    ['Executor Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nworkflow_stats\n| extend dummy = 1\n| join kind=inner (executor_stats | extend dummy = 1) on dummy\n| project-away dummy, dummy1",
+            "query": "let workflow_stats = dependencies\n| where name == \"workflow_invoke\"\n| summarize\n    ['Total Workflows'] = count(),\n    ['Avg Workflow Time'] = round(avg(duration) / 1000, 2),\n    ['Workflow Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nlet executor_stats = dependencies\n| where name startswith \"executor.process\"\n| summarize\n    ['Total Executors'] = count(),\n    ['Avg Executor Time'] = round(avg(duration) / 1000, 2),\n    ['Executor Success Rate'] = round(countif(success == \"True\") * 100.0 / count(), 1);\nworkflow_stats\n| extend dummy = 1\n| join kind=inner (executor_stats | extend dummy = 1) on dummy\n| project-away dummy, dummy1",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -381,7 +381,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 7
       },
@@ -403,12 +403,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name == \"workflow.run\"\n| summarize \n    Successful = countif(success == \"True\"),\n    Failed = countif(success == \"False\")\n    by bin(timestamp, $__interval)",
+            "query": "dependencies\n| where name == \"workflow_invoke\"\n| summarize\n    Successful = countif(success == \"True\"),\n    Failed = countif(success == \"False\")\n    by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -536,12 +536,24 @@
                 "value": 223
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Executor Type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 468
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 11,
-        "w": 12,
+        "w": 13,
         "x": 0,
         "y": 16
       },
@@ -565,12 +577,12 @@
           }
         ]
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name == \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| extend executor_id = tostring(customDimensions[\"executor.id\"])\n| summarize \n    Count = count(),\n    ['Avg Duration (s)'] = round(avg(duration) / 1000, 2),\n    ['P95 Duration (s)'] = round(percentile(duration, 95) / 1000, 2),\n    ['Success Rate (%)'] = round(countif(success == \"True\") * 100.0 / count(), 1)\n    by ['Executor Type'] = executor_type, ['Executor ID'] = executor_id\n| order by Count desc",
+            "query": "dependencies\n| where name startswith \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| extend executor_id = tostring(customDimensions[\"executor.id\"])\n| summarize\n    Count = count(),\n    ['Avg Duration (s)'] = round(avg(duration) / 1000, 2),\n    ['P95 Duration (s)'] = round(percentile(duration, 95) / 1000, 2),\n    ['Success Rate (%)'] = round(countif(success == \"True\") * 100.0 / count(), 1)\n    by ['Executor Type'] = executor_type, ['Executor ID'] = executor_id\n| order by Count desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -653,7 +665,7 @@
       "gridPos": {
         "h": 11,
         "w": 11,
-        "x": 12,
+        "x": 13,
         "y": 16
       },
       "id": 36,
@@ -680,12 +692,12 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name == \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| summarize \n    avg = round(avg(duration) / 1000, 2)\n    by executor_type\n| order by avg desc\n| limit 10",
+            "query": "dependencies\n| where name startswith \"executor.process\"\n| extend executor_type = tostring(customDimensions[\"executor.type\"])\n| summarize\n    avg = round(avg(duration) / 1000, 2)\n    by executor_type\n| order by avg desc\n| limit 10",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -864,7 +876,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 28
       },
@@ -888,12 +900,12 @@
           }
         ]
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Get workflow.run records\r\nlet workflowRuns = dependencies\r\n| where name == \"workflow.run\"\r\n| extend workflow_id = tostring(customDimensions['workflow.id']);\r\n// Get workflow.build records\r\nlet workflowBuilds = dependencies\r\n| where name == \"workflow.build\"\r\n| extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n| extend workflow_id = tostring(customDimensions['workflow.id']);\r\n// Join workflow.run with workflow.build on workflow_id\r\nworkflowRuns\r\n| join kind=leftouter (\r\n    workflowBuilds\r\n) on workflow_id\r\n| extend executorCount = array_length(bag_keys(workflow_definition.executors))\r\n| project timestamp, workflow_id, duration, success, executorCount, TraceId=operation_Id\r\n| order by timestamp desc ",
+            "query": "// Get workflow.run records\nlet workflowRuns = dependencies\n| where name == \"workflow_invoke\"\n| extend workflow_id = tostring(customDimensions['workflow.id']);\n// Get workflow.build records\nlet workflowBuilds = dependencies\n| where name == \"workflow.build\"\n| extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\n| extend workflow_id = tostring(customDimensions['workflow.id']);\n// Join workflow.run with workflow.build on workflow_id\nworkflowRuns\n| join kind=leftouter (\n    workflowBuilds\n) on workflow_id\n| extend executorCount = array_length(bag_keys(workflow_definition.executors))\n| project timestamp, workflow_id, duration, success, executorCount, TraceId=operation_Id\n| order by timestamp desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -931,7 +943,7 @@
       "description": "Visual representation of executor dependencies and workflow execution graph",
       "gridPos": {
         "h": 20,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 39
       },
@@ -946,7 +958,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Query for node graph visualization - nodes and edges\r\nlet traceId = \"$workflowTraceId\";\r\n// Get workflow definition\r\nlet workflowData = \r\n  dependencies\r\n  | where operation_Id == traceId\r\n  | where name == \"workflow.run\"\r\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n  | join kind=inner (\r\n      dependencies\r\n      | where name == \"workflow.build\"\r\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n  ) on workflow_id\r\n  | project workflow_definition, workflow_id;\r\n// Create nodes\r\nlet nodes = workflowData\r\n| extend executors = workflow_definition.executors\r\n| extend start_executor_id = tostring(workflow_definition.start_executor_id)\r\n| mv-expand executor = bag_keys(executors)\r\n| extend executor_obj = executors[tostring(executor)]\r\n| extend id = tostring(executor)\r\n| extend ['title'] = id\r\n| extend ['mainStat'] = iff(id == start_executor_id, \"START\", \"\")\r\n| extend secondaryStat = tostring(executor_obj.type)\r\n| extend arc__highlighted = iff(id == start_executor_id, 1.0, 0.0)\r\n| extend icon = iff(id == start_executor_id, \"arrow-right\", \"\")\r\n| project id, ['title'], icon;\r\nnodes | extend _type = \"nodes\"",
+            "query": "// Query for node graph visualization - nodes\nlet traceId = \"$workflowTraceId\";\nlet workflowData =\n  dependencies\n  | where operation_Id == traceId\n  | where name == \"workflow_invoke\"\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\n  | join kind=inner (\n      dependencies\n      | where name == \"workflow.build\"\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\n  ) on workflow_id\n  | project workflow_definition, workflow_id;\nlet nodes = workflowData\n| extend executors = workflow_definition.executors\n| extend start_executor_id = tostring(workflow_definition.startExecutorId)\n| mv-expand executor = bag_keys(executors)\n| extend executor_obj = executors[tostring(executor)]\n| extend id = tostring(executor)\n| extend ['title'] = id\n| extend ['mainStat'] = iff(id == start_executor_id, \"START\", \"\")\n| extend secondaryStat = tostring(executor_obj.executorType.typeName)\n| extend arc__highlighted = iff(id == start_executor_id, 1.0, 0.0)\n| extend icon = iff(id == start_executor_id, \"arrow-right\", \"\")\n| project id, ['title'], icon;\nnodes | extend _type = \"nodes\"",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -963,7 +975,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "// Query for node graph visualization - nodes and edges\r\nlet traceId = \"$workflowTraceId\";\r\n// Get workflow definition\r\nlet workflowData = \r\n  dependencies\r\n  | where operation_Id == traceId\r\n  | where name == \"workflow.run\"\r\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n  | join kind=inner (\r\n      dependencies\r\n      | where name == \"workflow.build\"\r\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\r\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\r\n  ) on workflow_id\r\n  | project workflow_definition, workflow_id;\r\n// Create edges - deduplicate to avoid duplicates\r\nlet edges = workflowData  \r\n| extend edge_groups = workflow_definition.edge_groups\r\n| mv-expand edge_group = edge_groups\r\n| where edge_group.type != \"InternalEdgeGroup\"\r\n| mv-expand edge = edge_group.edges\r\n| extend source = tostring(edge.source_id)\r\n| extend target = tostring(edge.target_id)\r\n| extend id = strcat(source, \"_to_\", target)\r\n| extend ['mainStat'] = toreal(1.0)\r\n| distinct id, source, target;\r\n// Combine nodes and edges\r\nedges | extend _type = \"edges\"",
+            "query": "// Query for node graph visualization - edges\nlet traceId = \"$workflowTraceId\";\nlet workflowData =\n  dependencies\n  | where operation_Id == traceId\n  | where name == \"workflow_invoke\"\n  | extend workflow_id = tostring(customDimensions['workflow.id'])\n  | join kind=inner (\n      dependencies\n      | where name == \"workflow.build\"\n      | extend workflow_id = tostring(customDimensions['workflow.id'])\n      | extend workflow_definition = parse_json(tostring(customDimensions['workflow.definition']))\n  ) on workflow_id\n  | project workflow_definition, workflow_id;\nlet edges = workflowData\n| extend edges_dict = workflow_definition.edges\n| mv-expand source_key = bag_keys(edges_dict)\n| extend edge_list = edges_dict[tostring(source_key)]\n| mv-expand edge = edge_list\n| mv-expand source = edge.connection.sourceIds\n| mv-expand target = edge.connection.sinkIds\n| extend source = tostring(source), target = tostring(target)\n| extend id = strcat(source, \"_to_\", target)\n| extend ['mainStat'] = toreal(1.0)\n| distinct id, source, target;\nedges | extend _type = \"edges\"",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1002,7 +1014,7 @@
       "description": "Distributed tracing view showing detailed execution timeline and dependencies for the selected workflow",
       "gridPos": {
         "h": 33,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 60
       },
@@ -1186,6 +1198,6 @@
   "timezone": "",
   "title": "Agent Framework Workflow",
   "uid": "AgentFrameworkWorkflow",
-  "version": 97,
+  "version": 103,
   "weekStart": ""
 }

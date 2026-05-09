@@ -27,13 +27,13 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.6.3"
+      "version": "11.6.9"
     },
     {
       "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
-      "version": "11.6.4"
+      "version": "11.6.9"
     },
     {
       "type": "panel",
@@ -119,6 +119,7 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -202,12 +203,24 @@
                 "value": 2
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 21,
+        "h": 5,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -230,16 +243,16 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "time_series",
+            "resultFormat": "table",
             "timeColumn": "timestamp"
           },
           "datasource": {
@@ -259,311 +272,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 4
-      },
-      "id": 20,
-      "panels": [],
-      "title": "Performance Monitoring",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Time series chart showing average, 95th percentile, and 99th percentile response times for agent operations over time to monitor performance trends and identify latency issues.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Duration (seconds)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 9,
-        "x": 0,
         "y": 5
-      },
-      "id": 1,
-      "interval": "1h",
-      "maxDataPoints": 50,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.3",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, $__interval)",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Agent Response Time Trends",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Percentage of successful agent operations displayed as a gauge with color-coded thresholds: red (0-90%), yellow (90-95%), green (95-100%).",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red"
-              },
-              {
-                "color": "yellow",
-                "value": 90
-              },
-              {
-                "color": "green",
-                "value": 95
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 9,
-        "y": 5
-      },
-      "id": 2,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "text": {}
-      },
-      "pluginVersion": "11.6.3",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    success_rate = countif(success == \"True\") * 100.0 / count()",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Success Rate",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Number of agent operations executed per time interval, displayed as a bar chart to track system utilization and identify peak usage periods.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Operations/min",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 15,
-        "y": 5
-      },
-      "id": 3,
-      "interval": "1h",
-      "maxDataPoints": 20,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.3",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    operations_count = count() \n    by bin(timestamp, $__interval)",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Throughput",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 13
       },
       "id": 21,
       "panels": [],
@@ -614,6 +323,7 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -655,14 +365,26 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
+        "w": 10,
         "x": 0,
-        "y": 14
+        "y": 6
       },
       "id": 4,
       "interval": "1h",
@@ -682,12 +404,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, $__interval)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    ['Input Tokens'] = sum(input_tokens),\n    ['Output Tokens'] = sum(output_tokens)\n    by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -723,21 +445,34 @@
               "viz": false
             }
           },
+          "links": [],
           "mappings": [],
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 9,
-        "y": 14
+        "w": 7,
+        "x": 10,
+        "y": 6
       },
       "id": 5,
       "options": {
         "displayLabels": [
-          "name",
           "percent"
         ],
         "legend": {
@@ -760,12 +495,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    total_tokens = sum(input_tokens + output_tokens)\n    by agent_name\n| where isnotempty(agent_name)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize \n    total_tokens = sum(input_tokens + output_tokens)\n    by agent_name",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -792,7 +527,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "continuous-blues"
           },
           "custom": {
             "axisBorderShow": false,
@@ -815,6 +550,7 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -826,13 +562,26 @@
           },
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 15,
-        "y": 14
+        "w": 7,
+        "x": 17,
+        "y": 6
       },
       "id": 6,
       "options": {
@@ -860,12 +609,12 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend \n    // Adjust these rates based on your model pricing (example: GPT-5 mini pricing)\n    input_cost = input_tokens * 0.00000025,   // $0.25 per 1M input tokens\n    output_cost = output_tokens * 0.000002    // $2 per 1M output tokens\n| summarize \n    estimated_cost = sum(input_cost + output_cost)\n    by bin(timestamp, 1d)\n| order by timestamp asc",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| extend \n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cached_input_tokens = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| extend uncached_input_tokens = input_tokens - coalesce(cached_input_tokens, 0)\n| extend\n    // Adjust per-model rates. Defaults below are GPT-5 mini-class. Cached input is ~1/10 of uncached.\n    uncached_cost = uncached_input_tokens * 0.00000025,        // $0.25 per 1M uncached input\n    cached_cost   = coalesce(cached_input_tokens, 0) * 0.000000025, // $0.025 per 1M cached input\n    output_cost   = output_tokens * 0.000002                   // $2 per 1M output\n| summarize estimated_cost = sum(uncached_cost + cached_cost + output_cost) by bin(timestamp, 1d)\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -889,7 +638,942 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 14
+      },
+      "id": 30,
+      "panels": [],
+      "title": "LLM & Tool Insights",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Percentage of input tokens served from cache across LLM chat calls (gen_ai.operation.name == 'chat'). Cached input is ~1/10 the price of uncached, so a high hit rate directly reduces spend.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-green"
+              },
+              {
+                "color": "green",
+                "value": 30
+              },
+              {
+                "color": "dark-green",
+                "value": 70
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 15
+      },
+      "id": 31,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend in_tok = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n         cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize cache_hit_pct = round(sum(cache_tok) * 100.0 / sum(in_tok), 1)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Rate (chat)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Total input tokens served from prompt cache. Equivalent to ~90% of these tokens' uncached cost saved.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 15
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where op_name == \"chat\"\n| extend cache_tok = toint(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize ['Tokens From Cache'] = sum(cache_tok)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tokens From Cache (chat)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Distribution of LLM chat finish reasons. Common values: tool_calls (multi-step agent step), stop (completion), length (hit max_tokens), content_filter (safety).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "id": 33,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         finish = tostring(customDimensions[\"gen_ai.response.finish_reasons\"])\n| where op_name == \"chat\"\n| where isnotempty(finish)\n| summarize call_count = count() by finish",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat Finish Reasons",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "p95 latency of LLM chat calls broken out by gen_ai.response.model. Surfaces silent model routing and per-model latency drift.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "p95 (ms)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "id": 34,
+      "interval": "1h",
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         model = tostring(customDimensions[\"gen_ai.response.model\"])\n| where op_name == \"chat\"\n| extend model = iff(isempty(model), \"(unknown)\", model)\n| summarize p95_ms = percentile(duration, 95) by bin(timestamp, $__interval), model\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat p95 Latency by Model",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Most-used tools by call count, with success rate and latency. Sortable.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tool"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Tool"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "calls"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Calls"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success_rate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Success %"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 90
+                    },
+                    {
+                      "color": "green",
+                      "value": 99
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg (ms)"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "p95 (ms)"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 35,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Calls"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| extend op_name = tostring(customDimensions[\"gen_ai.operation.name\"]),\n         tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where op_name == \"execute_tool\"\n| where isnotempty(tool)\n| summarize calls = count(),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 1),\n    avg_duration_ms = round(avg(duration), 0),\n    p95_duration_ms = round(percentile(duration, 95), 0)\n    by tool\n| order by calls desc\n| take 30",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tool Usage Leaderboard",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Performance Monitoring",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Time series chart showing average, 95th percentile, and 99th percentile response times for agent operations over time to monitor performance trends and identify latency issues.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Duration (seconds)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 30
+      },
+      "id": 1,
+      "interval": "1h",
+      "maxDataPoints": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    avg = avg(duration) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by bin(timestamp, $__interval)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Response Time Trends",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Percentage of successful agent operations displayed as a gauge with color-coded thresholds: red (0-90%), yellow (90-95%), green (95-100%).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "yellow",
+                "value": 90
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 10,
+        "y": 30
+      },
+      "id": 2,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    success_rate = countif(success == \"True\") * 100.0 / count()",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Success Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Number of agent operations executed per time interval, displayed as a bar chart to track system utilization and identify peak usage periods.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Operations/min",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 30
+      },
+      "id": 3,
+      "interval": "1h",
+      "maxDataPoints": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    operations_count = count() \n    by bin(timestamp, $__interval)",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${DS_AZURE_MONITOR}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
       },
       "id": 22,
       "panels": [],
@@ -911,6 +1595,13 @@
             },
             "inspect": false
           },
+          "links": [
+            {
+              "targetBlank": false,
+              "title": "Filter dashboard to agent: ${__data.fields.agent_name}",
+              "url": "/d/${__dashboard.uid}/agent-framework?${__url_time_range}&${__all_variables}&var-agentName=${__data.fields.agent_name}"
+            }
+          ],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1011,10 +1702,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 11,
+        "h": 14,
+        "w": 12,
         "x": 0,
-        "y": 23
+        "y": 39
       },
       "id": 7,
       "options": {
@@ -1035,12 +1726,12 @@
           }
         ]
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize \n    operations = count(),\n    avg_duration = round(avg(duration) / 1000, 2),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 2)\n    by agent_name\n| order by operations desc",
+            "query": "dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize\n    operations = count(),\n    avg_duration = round(avg(duration) / 1000, 2),\n    success_rate = round(countif(success == \"True\") * 100.0 / count(), 2)\n    by agent_name\n| order by operations desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1055,7 +1746,7 @@
           "refId": "A"
         }
       ],
-      "title": "Agent Performance Summary",
+      "title": "Agent Performance Summary (Click to select one agent)",
       "type": "table"
     },
     {
@@ -1081,6 +1772,7 @@
             "lineWidth": 0,
             "spanNulls": false
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1100,13 +1792,26 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 10,
-        "x": 11,
-        "y": 23
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 39
       },
       "id": 8,
       "options": {
@@ -1125,12 +1830,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize operations_count = count() by bin(timestamp, 1h), agent_name\n| order by timestamp asc",
+            "query": "let agentNames = dynamic([$agentName]);\nlet maxRows = 10;\nlet topAgents = dependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize cnt = count() by agent_name\n| top maxRows by cnt\n| project agent_name;\ndependencies\n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where agent_name in (topAgents)\n| summarize operations_count = count() by bin(timestamp, 1h), agent_name\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1163,7 +1868,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 53
       },
       "id": 23,
       "panels": [],
@@ -1181,6 +1886,7 @@
           "color": {
             "mode": "thresholds"
           },
+          "links": [],
           "mappings": [],
           "max": 100,
           "min": 0,
@@ -1202,13 +1908,26 @@
           },
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 32
+        "y": 54
       },
       "id": 9,
       "options": {
@@ -1227,12 +1946,12 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| summarize \n    error_rate = round(countif(success == \"False\") * 100.0 / count(), 2)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    error_rate = round(countif(success == \"False\") * 100.0 / count(), 2)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1268,7 +1987,7 @@
             "axisLabel": "Errors",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -1294,6 +2013,7 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1305,13 +2025,26 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
-        "w": 9,
+        "w": 12,
         "x": 4,
-        "y": 32
+        "y": 54
       },
       "id": 10,
       "interval": "1h",
@@ -1329,12 +2062,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, $__interval)",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| where success == \"False\"\n| summarize error_count = count() by bin(timestamp, $__interval)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1367,6 +2100,7 @@
             },
             "inspect": false
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1437,14 +2171,26 @@
                 "value": 2
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 9,
         "w": 8,
-        "x": 13,
-        "y": 32
+        "x": 16,
+        "y": 54
       },
       "id": 11,
       "options": {
@@ -1465,12 +2211,12 @@
           }
         ]
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\" and success == \"False\"\n| extend \n    error_type = tostring(customDimensions[\"error.type\"]),\n    agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| project timestamp, agent_name, error_type, duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\" and success == \"False\"\n| extend \n    error_type = tostring(customDimensions[\"error.type\"]),\n    agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| project timestamp, agent_name, error_type, duration = round(duration / 1000, 2)\n| order by timestamp desc\n| limit 20",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1494,7 +2240,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 63
       },
       "id": 24,
       "panels": [],
@@ -1534,6 +2280,7 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1545,13 +2292,26 @@
           },
           "unit": "s"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": []
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 24,
-        "w": 21,
+        "w": 24,
         "x": 0,
-        "y": 42
+        "y": 64
       },
       "id": 13,
       "options": {
@@ -1576,12 +2336,12 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| summarize \n    p50 = percentile(duration, 50) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by agent_name",
+            "query": "let agentNames = dynamic([$agentName]);\ndependencies \n| where name contains \"invoke_agent\"\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agent_name)\n| where array_length(agentNames) > 0\n| where agent_name in (agentNames)\n| summarize \n    p50 = percentile(duration, 50) / 1000,\n    p95 = percentile(duration, 95) / 1000,\n    p99 = percentile(duration, 99) / 1000\n    by agent_name",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1605,7 +2365,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 88
       },
       "id": 25,
       "panels": [],
@@ -1765,9 +2525,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 21,
+        "w": 24,
         "x": 0,
-        "y": 67
+        "y": 89
       },
       "id": 26,
       "options": {
@@ -1789,12 +2549,12 @@
           }
         ]
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\r\n| where name contains \"invoke_agent\"\r\n| extend Agent = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| extend input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]), output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\r\n| project timestamp, Agent, success, duration, input_tokens, output_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
+            "query": "let agentNames = dynamic([$agentName]);\r\ndependencies\r\n| where name contains \"invoke_agent\"\r\n| extend Agent = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| where isnotempty(Agent)\r\n| where array_length(agentNames) > 0\r\n| where Agent in (agentNames)\r\n| extend input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]), output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\r\n| project timestamp, Agent, success, duration, input_tokens, output_tokens, TraceId=operation_Id\r\n| order by timestamp desc ",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1817,7 +2577,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 97
       },
       "id": 27,
       "panels": [],
@@ -1832,9 +2592,9 @@
       "description": "Detailed trace visualization showing the complete execution flow of a selected agent operation, including all dependencies, timing, and hierarchical span relationships for debugging and performance analysis.",
       "gridPos": {
         "h": 27,
-        "w": 21,
+        "w": 24,
         "x": 0,
-        "y": 76
+        "y": 98
       },
       "id": 28,
       "options": {
@@ -1851,7 +2611,7 @@
           ]
         }
       },
-      "pluginVersion": "11.6.3",
+      "pluginVersion": "11.6.9",
       "targets": [
         {
           "azureTraces": {
@@ -1881,7 +2641,7 @@
       "type": "traces"
     }
   ],
-  "refresh": "5m",
+  "refresh": "30m",
   "schemaVersion": 41,
   "tags": [
     "agent-framework"
@@ -2004,6 +2764,35 @@
         "refresh": 2,
         "regex": "",
         "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "${DS_AZURE_MONITOR}"
+        },
+        "definition": "",
+        "description": "Name of the agent",
+        "includeAll": true,
+        "label": "Agent",
+        "multi": true,
+        "name": "agentName",
+        "options": [],
+        "query": {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies \r\n| where name contains \"invoke_agent\"\r\n| extend agent_name = tostring(customDimensions[\"gen_ai.agent.name\"])\r\n| where isnotempty(agent_name)\r\n| summarize operationCount=count() by agent_name\r\n| sort by operationCount desc\r\n| project agent_name",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "timeColumn": "timestamp"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
       }
     ]
   },
@@ -2015,6 +2804,6 @@
   "timezone": "",
   "title": "Agent Framework",
   "uid": "AgentFramework",
-  "version": 9,
+  "version": 33,
   "weekStart": ""
 }
