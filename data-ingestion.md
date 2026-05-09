@@ -1,6 +1,6 @@
 # Dashboard Data Ingestion
 
-Several dashboards in this repository — [GitHub Copilot](./github-copilot/README.md), [Claude Code](./claude-code/README.md), [OpenClaw](./openclaw/README.md), [OpenCode](./opencode/README.md), and [Gemini CLI](./gemini-cli/README.md) — visualize telemetry that flows into **Azure Application Insights** via **OpenTelemetry (OTLP)**.
+Several dashboards in this repository — [GitHub Copilot](./github-copilot/README.md), [Claude Code](./claude-code/README.md), [Codex](./codex/README.md), [OpenClaw](./openclaw/README.md), [OpenCode](./opencode/README.md), and [Gemini CLI](./gemini-cli/README.md) — visualize telemetry that flows into **Azure Application Insights** via **OpenTelemetry (OTLP)**.
 
 This guide walks through the end-to-end ingestion pipeline: running an OpenTelemetry Collector with the Azure Monitor Exporter, then pointing each source application at it.
 
@@ -13,7 +13,7 @@ This guide walks through the end-to-end ingestion pipeline: running an OpenTelem
 └───────────────┘                 └──────────────────┘                     └──────────────────┘              └──────────┘
 ```
 
-- Each **source application** (GitHub Copilot / Claude Code / OpenClaw / OpenCode / Gemini CLI) emits OTLP traces, metrics, and logs to a configured endpoint.
+- Each **source application** (GitHub Copilot / Claude Code / Codex / OpenClaw / OpenCode / Gemini CLI) emits OTLP traces, metrics, and logs to a configured endpoint.
 - An **OpenTelemetry Collector** terminates OTLP at that endpoint and forwards the data to Application Insights using the Azure Monitor Exporter.
 - **Grafana** queries Application Insights via the Azure Monitor data source (Log Analytics / KQL) to render the dashboards.
 
@@ -106,6 +106,14 @@ Add to the Claude Code `settings.json`:
 
 Tip: `OTEL_LOG_USER_PROMPTS` and `OTEL_LOG_TOOL_DETAILS` enrich the dashboard's per-user and tool-usage panels. Omit them if you prefer not to capture prompt text.
 
+### Codex
+
+Codex CLI telemetry should be exported to the collector using OTLP/HTTP and a stable service name.
+
+Use `codex` as the service name and `http://localhost:4318` as the OTLP endpoint. The Codex dashboard reads metrics from the `customMetrics` table and filters by `cloud_RoleName startswith "codex"`.
+
+Important: Codex metric names must follow the `codex.*` naming scheme, including metrics such as `codex.thread.started`, `codex.conversation.turn.count`, `codex.turn.token_usage`, `codex.tool.call`, and `codex.approval.requested`.
+
 ### OpenClaw
 
 OpenClaw gateway publishes OpenTelemetry signals via its logging/telemetry config. See the [official docs](https://docs.openclaw.ai/logging#export-to-opentelemetry).
@@ -176,6 +184,15 @@ customMetrics
 ```
 
 ```kusto
+// Codex
+customMetrics
+| where timestamp > ago(1h)
+| where cloud_RoleName startswith "codex"
+| where name startswith "codex."
+| take 50
+```
+
+```kusto
 // OpenClaw
 dependencies
 | where timestamp > ago(1h)
@@ -207,6 +224,7 @@ If rows come back, the pipeline is working. If not, check the collector logs for
 Each dashboard README has its own import and variables reference:
 
 - [Claude Code](./claude-code/README.md)
+- [Codex](./codex/README.md)
 - [GitHub Copilot](./github-copilot/README.md)
 - [OpenClaw](./openclaw/README.md)
 - [OpenCode](./opencode/README.md)
@@ -221,6 +239,7 @@ All require **Grafana 11.6+** with an **Azure Monitor data source** that has acc
 - [Application Insights connection strings](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string)
 - [Monitoring GitHub Copilot agents](https://code.visualstudio.com/docs/copilot/guides/monitoring-agents)
 - [Monitoring Claude Code usage](https://code.claude.com/docs/en/monitoring-usage)
+- [Codex](https://github.com/openai/codex)
 - [OpenClaw — Export to OpenTelemetry](https://docs.openclaw.ai/logging#export-to-opentelemetry)
 - [OpenCode](https://opencode.ai)
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli)

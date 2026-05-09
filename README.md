@@ -23,6 +23,14 @@ Preview:
 
 ---
 
+## Codex
+- Details and setup: [./codex/README.md](./codex/README.md)
+
+Preview:
+![Codex](./codex/codex-main.png)
+
+---
+
 ## GitHub Copilot
 - Details and setup: [./github-copilot/README.md](./github-copilot/README.md)
 
@@ -129,6 +137,7 @@ You can import these dashboards into Grafana in two ways:
   - `./litellm-azmon/dashboards/litellm-azmon.json`
   - `./litellm-trace/dashboards/litellm-trace.json`
   - `./claude-code/dashboards/claude-code.json`
+  - `./codex/dashboards/codex.json`
   - `./github-copilot/dashboards/github-copilot.json`
   - `./openclaw/dashboards/openclaw.json`
   - `./opencode/dashboards/opencode.json`
@@ -138,7 +147,7 @@ Note: Some dashboards expect specific data sources (for example, Azure Monitor).
 
 # Data Ingestion
 
-Several dashboards — **Claude Code**, **GitHub Copilot**, **OpenClaw**, **OpenCode**, and **Gemini CLI** — rely on Application Insights telemetry ingested via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end pipeline: OpenTelemetry Collector setup with the Azure Monitor Exporter, per-application OTLP configuration, and verification.
+Several dashboards — **Claude Code**, **Codex**, **GitHub Copilot**, **OpenClaw**, **OpenCode**, and **Gemini CLI** — rely on Application Insights telemetry ingested via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end pipeline: OpenTelemetry Collector setup with the Azure Monitor Exporter, per-application OTLP configuration, and verification.
 
 ## License
 
