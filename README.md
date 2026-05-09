@@ -39,6 +39,22 @@ Preview:
 
 ---
 
+## OpenCode
+- Details and setup: [./opencode/README.md](./opencode/README.md)
+
+Preview:
+![OpenCode](./opencode/opencode-main.png)
+
+---
+
+## Gemini CLI
+- Details and setup: [./gemini-cli/README.md](./gemini-cli/README.md)
+
+Preview:
+![Gemini CLI](./gemini-cli/gemini-cli-main.png)
+
+---
+
 ## Azure AI Foundry
 - Details and setup: [./ai-foundry/README.md](./ai-foundry/README.md)  
 - Gallery ID: `24039`  
@@ -115,12 +131,14 @@ You can import these dashboards into Grafana in two ways:
   - `./claude-code/dashboards/claude-code.json`
   - `./github-copilot/dashboards/github-copilot.json`
   - `./openclaw/dashboards/openclaw.json`
+  - `./opencode/dashboards/opencode.json`
+  - `./gemini-cli/dashboards/gemini-cli.json`
 
 Note: Some dashboards expect specific data sources (for example, Azure Monitor). Ensure the corresponding data sources are configured in Grafana for the panels to populate correctly.
 
 # Data Ingestion
 
-Several dashboards — **Claude Code**, **GitHub Copilot**, and **OpenClaw** — rely on Application Insights telemetry ingested via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end pipeline: OpenTelemetry Collector setup with the Azure Monitor Exporter, per-application OTLP configuration, and verification.
+Several dashboards — **Claude Code**, **GitHub Copilot**, **OpenClaw**, **OpenCode**, and **Gemini CLI** — rely on Application Insights telemetry ingested via OpenTelemetry. See [Dashboard Data Ingestion](https://github.com/1w2w3y/grafana-dashboards/blob/master/data-ingestion.md) for the end-to-end pipeline: OpenTelemetry Collector setup with the Azure Monitor Exporter, per-application OTLP configuration, and verification.
 
 ## License
 
