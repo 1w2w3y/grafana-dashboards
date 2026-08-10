@@ -1,38 +1,38 @@
 {
+  "__elements": {},
   "__inputs": [
     {
-      "name": "am_ds",
-      "label": "Azure Monitor",
       "description": "",
-      "type": "datasource",
+      "label": "Azure Monitor",
+      "name": "am_ds",
       "pluginId": "grafana-azure-monitor-datasource",
-      "pluginName": "Azure Monitor"
+      "pluginName": "Azure Monitor",
+      "type": "datasource"
     }
   ],
-  "__elements": {},
   "__requires": [
     {
-      "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
+      "type": "grafana",
       "version": "11.6.9"
     },
     {
-      "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
+      "type": "datasource",
       "version": "11.6.9"
     },
     {
-      "type": "panel",
       "id": "stat",
       "name": "Stat",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "timeseries",
       "name": "Time series",
+      "type": "panel",
       "version": ""
     }
   ],
@@ -77,7 +77,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Estimated cost calculated from input and output token usage with model-specific pricing",
+      "description": "Estimated cost calculated from input and output token usage with model-specific pricing. Only models with a configured price appear as tiles. Audio models (tts/transcribe) are text-token lower bounds - audio usage is not token-metered. model-router is intentionally unpriced - its cost depends on the routed model. Use the Price Scale variable to scale all tiles.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -89,10 +89,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -102,14 +98,14 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 20,
+        "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 13,
       "options": {
         "colorMode": "background",
-        "graphMode": "none",
+        "graphMode": "area",
         "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -160,7 +156,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -204,7 +201,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -218,6 +216,97 @@
       ],
       "title": "Estimated Cost",
       "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Kk]imi-[Kk]3_(input|output)",
+            "renamePattern": "Kimi-K3_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Dd]eep[Ss]eek-[Vv]4-[Ff]lash_(input|output)",
+            "renamePattern": "DeepSeek-V4-Flash_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Dd]eep[Ss]eek-[Vv]4-[Pp]ro_(input|output)",
+            "renamePattern": "DeepSeek-V4-Pro_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Kk]imi-[Kk]2\\.6_(input|output)",
+            "renamePattern": "Kimi-K2.6_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Kk]imi-[Kk]2\\.5_(input|output)",
+            "renamePattern": "Kimi-K2.5_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "[Kk]imi-[Kk]2\\.7-[Cc]ode_(input|output)",
+            "renamePattern": "Kimi-K2.7-Code_$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Gg][Pp][Tt]-(.*)_(input|output)$",
+            "renamePattern": "gpt-$1_$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Oo]([134])(.*)_(input|output)$",
+            "renamePattern": "o$1$2_$3"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Cc][Ll][Aa][Uu][Dd][Ee]-(.*)_(input|output)$",
+            "renamePattern": "claude-$1_$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Gg][Rr][Oo][Kk]-(.*)_(input|output)$",
+            "renamePattern": "grok-$1_$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Mm][Ii][Ss][Tt][Rr][Aa][Ll]-(.*)_(input|output)$",
+            "renamePattern": "mistral-$1_$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Dd][Ee][Ee][Pp][Ss][Ee][Ee][Kk]-[Vv]3\\.([12])_(input|output)$",
+            "renamePattern": "deepseek-v3.$1_$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^[Kk][Ii][Mm][Ii]-[Kk]2-[Tt]hinking_(input|output)$",
+            "renamePattern": "kimi-k2-thinking_$1"
+          }
+        },
         {
           "id": "calculateField",
           "options": {
@@ -1167,7 +1256,7 @@
               },
               "operator": "*",
               "right": {
-                "fixed": "0.00000114"
+                "fixed": "0.00000123"
               }
             },
             "mode": "binary",
@@ -1190,7 +1279,7 @@
               },
               "operator": "*",
               "right": {
-                "fixed": "0.00000456"
+                "fixed": "0.00000494"
               }
             },
             "mode": "binary",
@@ -3278,7 +3367,7 @@
               },
               "operator": "*",
               "right": {
-                "fixed": "0.0000025"
+                "fixed": "0.000003"
               }
             },
             "mode": "binary",
@@ -4003,6 +4092,2998 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000175"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000014"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3_scaled",
+            "binary": {
+              "left": "gpt-5.3",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-chat_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-chat_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000175"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-chat_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-chat_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000014"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-chat",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-chat_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.3-chat_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.3-chat_scaled",
+            "binary": {
+              "left": "gpt-5.3-chat",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000015"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4_scaled",
+            "binary": {
+              "left": "gpt-5.4",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-pro_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-pro_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-pro_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-pro_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00018"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-pro",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-pro_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-pro_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-pro_scaled",
+            "binary": {
+              "left": "gpt-5.4-pro",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-4-6_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-4-6_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-4-6_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-4-6_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000015"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-4-6",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-4-6_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-4-6_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-4-6_scaled",
+            "binary": {
+              "left": "claude-sonnet-4-6",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-7_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-7_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-7_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-7_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-7",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-7_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-7_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-7_scaled",
+            "binary": {
+              "left": "claude-opus-4-7",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-mini_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-mini_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000075"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-mini_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-mini_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000045"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-mini",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-mini_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-mini_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-mini_scaled",
+            "binary": {
+              "left": "gpt-5.4-mini",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-nano_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-nano_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-nano_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-nano_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000125"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-nano",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-nano_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.4-nano_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.4-nano_scaled",
+            "binary": {
+              "left": "gpt-5.4-nano",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5_scaled",
+            "binary": {
+              "left": "gpt-5.5",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5-pro_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5-pro_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5-pro_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5-pro_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00018"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5-pro",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5-pro_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.5-pro_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.5-pro_scaled",
+            "binary": {
+              "left": "gpt-5.5-pro",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.6_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.6_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000095"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.6_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.6_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000004"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.6",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.6_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.6_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.6_scaled",
+            "binary": {
+              "left": "Kimi-K2.6",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-chat-latest_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-chat-latest_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-chat-latest_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-chat-latest_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-chat-latest",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-chat-latest_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-chat-latest_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-chat-latest_scaled",
+            "binary": {
+              "left": "gpt-chat-latest",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.3_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.3_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000125"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.3_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.3_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.3",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.3_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.3_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.3_scaled",
+            "binary": {
+              "left": "grok-4.3",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-8_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-8_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-8_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-8_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-8",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-8_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-4-8_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-4-8_scaled",
+            "binary": {
+              "left": "claude-opus-4-8",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Pro_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Pro_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000174"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Pro_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Pro_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000348"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Pro",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Pro_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Pro_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Pro_scaled",
+            "binary": {
+              "left": "DeepSeek-V4-Pro",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Flash_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Flash_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000019"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Flash_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Flash_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000051"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Flash",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Flash_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DeepSeek-V4-Flash_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "DeepSeek-V4-Flash_scaled",
+            "binary": {
+              "left": "DeepSeek-V4-Flash",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-sol_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-sol_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-sol_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-sol_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-sol",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-sol_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-sol_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-sol_scaled",
+            "binary": {
+              "left": "gpt-5.6-sol",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-luna_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-luna_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-luna_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-luna_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000012"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-luna",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-luna_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-luna_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-luna_scaled",
+            "binary": {
+              "left": "gpt-5.6-luna",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-terra_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-terra_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-terra_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-terra_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000012"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-terra",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-terra_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-5.6-terra_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-5.6-terra_scaled",
+            "binary": {
+              "left": "gpt-5.6-terra",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.7-Code_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.7-Code_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000095"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.7-Code_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.7-Code_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000004"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.7-Code",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.7-Code_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K2.7-Code_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K2.7-Code_scaled",
+            "binary": {
+              "left": "Kimi-K2.7-Code",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-transcribe_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-transcribe_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-transcribe_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-transcribe_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-transcribe",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-transcribe_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-transcribe_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-transcribe_scaled",
+            "binary": {
+              "left": "gpt-4o-mini-transcribe",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-tts_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-tts_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000006"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-tts_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-tts_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000012"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-tts",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-tts_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-4o-mini-tts_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-4o-mini-tts_scaled",
+            "binary": {
+              "left": "gpt-4o-mini-tts",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-fable-5_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-fable-5_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00001"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-fable-5_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-fable-5_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-fable-5",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-fable-5_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-fable-5_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-fable-5_scaled",
+            "binary": {
+              "left": "claude-fable-5",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-5_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-5_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-5_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-5_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-5",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-5_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-opus-5_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-opus-5_scaled",
+            "binary": {
+              "left": "claude-opus-5",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-5_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-5_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-5_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-5_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000015"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-5",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-5_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "claude-sonnet-5_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "claude-sonnet-5_scaled",
+            "binary": {
+              "left": "claude-sonnet-5",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-image-2_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-image-2_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000008"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-image-2_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-image-2_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-image-2",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-image-2_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-image-2_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-image-2_scaled",
+            "binary": {
+              "left": "gpt-image-2",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-oss-120b_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-oss-120b_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000015"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-oss-120b_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-oss-120b_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000006"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-oss-120b",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-oss-120b_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-oss-120b_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-oss-120b_scaled",
+            "binary": {
+              "left": "gpt-oss-120b",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000055"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000275"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4_scaled",
+            "binary": {
+              "left": "grok-4",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-reasoning_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-reasoning_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000043"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-reasoning_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-reasoning_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000173"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-reasoning",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-reasoning_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-reasoning_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-reasoning_scaled",
+            "binary": {
+              "left": "grok-4-fast-reasoning",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-non-reasoning_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-non-reasoning_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000043"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-non-reasoning_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-non-reasoning_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00000173"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-non-reasoning",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-non-reasoning_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-fast-non-reasoning_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-fast-non-reasoning_scaled",
+            "binary": {
+              "left": "grok-4-fast-non-reasoning",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-reasoning_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-reasoning_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-reasoning_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-reasoning_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-reasoning",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-reasoning_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-reasoning_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-reasoning_scaled",
+            "binary": {
+              "left": "grok-4-1-fast-reasoning",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-non-reasoning_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-non-reasoning_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-non-reasoning_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-non-reasoning_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-non-reasoning",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-non-reasoning_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4-1-fast-non-reasoning_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4-1-fast-non-reasoning_scaled",
+            "binary": {
+              "left": "grok-4-1-fast-non-reasoning",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-code-fast-1_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-code-fast-1_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000001"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-code-fast-1_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-code-fast-1_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-code-fast-1",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-code-fast-1_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-code-fast-1_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-code-fast-1_scaled",
+            "binary": {
+              "left": "grok-code-fast-1",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K3_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K3_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000003"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K3_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K3_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000015"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K3",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K3_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Kimi-K3_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Kimi-K3_scaled",
+            "binary": {
+              "left": "Kimi-K3",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
@@ -4017,12 +7098,23 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
+              "DeepSeek-V4-Flash_scaled": "DeepSeek-V4-Flash",
+              "DeepSeek-V4-Pro_scaled": "DeepSeek-V4-Pro",
               "Kimi-K2.5_scaled": "Kimi-K2.5",
+              "Kimi-K2.6_scaled": "Kimi-K2.6",
+              "Kimi-K2.7-Code_scaled": "Kimi-K2.7-Code",
+              "Kimi-K3_scaled": "Kimi-K3",
+              "claude-fable-5_scaled": "claude-fable-5",
               "claude-haiku-4-5_scaled": "claude-haiku-4-5",
               "claude-opus-4-1_scaled": "claude-opus-4-1",
               "claude-opus-4-5_scaled": "claude-opus-4-5",
               "claude-opus-4-6_scaled": "claude-opus-4-6",
+              "claude-opus-4-7_scaled": "claude-opus-4-7",
+              "claude-opus-4-8_scaled": "claude-opus-4-8",
+              "claude-opus-5_scaled": "claude-opus-5",
               "claude-sonnet-4-5_scaled": "claude-sonnet-4-5",
+              "claude-sonnet-4-6_scaled": "claude-sonnet-4-6",
+              "claude-sonnet-5_scaled": "claude-sonnet-5",
               "deepseek-r1-0528_scaled": "deepseek-r1-0528",
               "deepseek-v3.1_scaled": "deepseek-v3.1",
               "deepseek-v3.2-speciale_scaled": "deepseek-v3.2-speciale",
@@ -4030,6 +7122,8 @@
               "gpt-4.1-mini_scaled": "gpt-4.1-mini",
               "gpt-4.1-nano_scaled": "gpt-4.1-nano",
               "gpt-4.1_scaled": "gpt-4.1",
+              "gpt-4o-mini-transcribe_scaled": "gpt-4o-mini-transcribe",
+              "gpt-4o-mini-tts_scaled": "gpt-4o-mini-tts",
               "gpt-4o-mini_scaled": "gpt-4o-mini",
               "gpt-4o_scaled": "gpt-4o",
               "gpt-5-chat_scaled": "gpt-5-chat",
@@ -4045,13 +7139,34 @@
               "gpt-5.2-chat_scaled": "gpt-5.2-chat",
               "gpt-5.2-codex_scaled": "gpt-5.2-codex",
               "gpt-5.2_scaled": "gpt-5.2",
+              "gpt-5.3-chat_scaled": "gpt-5.3-chat",
               "gpt-5.3-codex_scaled": "gpt-5.3-codex",
+              "gpt-5.3_scaled": "gpt-5.3",
+              "gpt-5.4-mini_scaled": "gpt-5.4-mini",
+              "gpt-5.4-nano_scaled": "gpt-5.4-nano",
+              "gpt-5.4-pro_scaled": "gpt-5.4-pro",
+              "gpt-5.4_scaled": "gpt-5.4",
+              "gpt-5.5-pro_scaled": "gpt-5.5-pro",
+              "gpt-5.5_scaled": "gpt-5.5",
+              "gpt-5.6-luna_scaled": "gpt-5.6-luna",
+              "gpt-5.6-sol_scaled": "gpt-5.6-sol",
+              "gpt-5.6-terra_scaled": "gpt-5.6-terra",
               "gpt-5_scaled": "gpt-5",
+              "gpt-chat-latest_scaled": "gpt-chat-latest",
               "gpt-image-1-mini_scaled": "gpt-image-1-mini",
               "gpt-image-1.5_scaled": "gpt-image-1.5",
               "gpt-image-1_scaled": "gpt-image-1",
+              "gpt-image-2_scaled": "gpt-image-2",
+              "gpt-oss-120b_scaled": "gpt-oss-120b",
               "grok-3-mini_scaled": "grok-3-mini",
               "grok-3_scaled": "grok-3",
+              "grok-4-1-fast-non-reasoning_scaled": "grok-4-1-fast-non-reasoning",
+              "grok-4-1-fast-reasoning_scaled": "grok-4-1-fast-reasoning",
+              "grok-4-fast-non-reasoning_scaled": "grok-4-fast-non-reasoning",
+              "grok-4-fast-reasoning_scaled": "grok-4-fast-reasoning",
+              "grok-4.3_scaled": "grok-4.3",
+              "grok-4_scaled": "grok-4",
+              "grok-code-fast-1_scaled": "grok-code-fast-1",
               "kimi-k2-thinking_scaled": "kimi-k2-thinking",
               "mistral-large-3_scaled": "mistral-large-3",
               "o1-mini_scaled": "o1-mini",
@@ -4083,10 +7198,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -4110,8 +7221,8 @@
         ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 20,
+        "h": 5,
+        "w": 24,
         "x": 0,
         "y": 4
       },
@@ -4123,9 +7234,11 @@
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "sum"
+          ],
           "fields": "",
-          "values": true
+          "values": false
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -4169,7 +7282,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -4180,7 +7294,7 @@
           "subscription": "$sub"
         }
       ],
-      "title": "Input Tokens",
+      "title": "Input Tokens (total)",
       "transformations": [
         {
           "id": "reduce",
@@ -4191,15 +7305,26 @@
           }
         },
         {
-          "id": "sortBy",
+          "id": "filterByValue",
           "options": {
-            "fields": {},
-            "sort": [
+            "filters": [
               {
-                "field": "Field"
+                "config": {
+                  "id": "greater",
+                  "options": {
+                    "value": 0
+                  }
+                },
+                "fieldName": "Total"
               }
-            ]
+            ],
+            "match": "all",
+            "type": "include"
           }
+        },
+        {
+          "id": "rowsToFields",
+          "options": {}
         }
       ],
       "type": "stat"
@@ -4209,7 +7334,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Number of tokens generated (output) from an OpenAI model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
+      "description": "Number of tokens generated (output) by model deployments in this AI Foundry resource. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4221,10 +7346,6 @@
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -4248,10 +7369,10 @@
         ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 20,
+        "h": 5,
+        "w": 24,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "id": 12,
       "options": {
@@ -4265,7 +7386,7 @@
             "sum"
           ],
           "fields": "",
-          "values": true
+          "values": false
         },
         "showPercentChange": false,
         "textMode": "auto",
@@ -4309,7 +7430,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -4320,7 +7442,7 @@
           "subscription": "$sub"
         }
       ],
-      "title": "Output Tokens",
+      "title": "Output Tokens (total)",
       "transformations": [
         {
           "id": "reduce",
@@ -4331,15 +7453,26 @@
           }
         },
         {
-          "id": "sortBy",
+          "id": "filterByValue",
           "options": {
-            "fields": {},
-            "sort": [
+            "filters": [
               {
-                "field": "Field"
+                "config": {
+                  "id": "greater",
+                  "options": {
+                    "value": 0
+                  }
+                },
+                "fieldName": "Total"
               }
-            ]
+            ],
+            "match": "all",
+            "type": "include"
           }
+        },
+        {
+          "id": "rowsToFields",
+          "options": {}
         }
       ],
       "type": "stat"
@@ -4349,7 +7482,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Number of calls made to the Azure OpenAI API over a period of time. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
+      "description": "Number of model inference requests to deployments in this AI Foundry resource over a period of time. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4362,7 +7495,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 60,
             "gradientMode": "none",
@@ -4389,43 +7522,42 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
-        "w": 20,
+        "h": 10,
+        "w": 12,
         "x": 0,
-        "y": 12
+        "y": 14
       },
       "id": 2,
-      "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [
-            "sum"
+            "sum",
+            "mean",
+            "max"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
@@ -4454,7 +7586,7 @@
                 "operator": "ne"
               }
             ],
-            "metricName": "AzureOpenAIRequests",
+            "metricName": "ModelRequests",
             "metricNamespace": "microsoft.cognitiveservices/accounts",
             "region": "$region",
             "resources": [
@@ -4466,7 +7598,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -4477,7 +7610,7 @@
           "subscription": "$sub"
         }
       ],
-      "title": "Model requests",
+      "title": "Model Requests",
       "type": "timeseries"
     },
     {
@@ -4485,7 +7618,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Percentage of prompt tokens that matched the cache. Higher rates indicate better prompt cache utilization, reducing latency and cost for repeated or similar prompts. Applies to models with prompt caching enabled (e.g., GPT-4o, o1).",
+      "description": "Percentage of prompt tokens that matched the prompt cache - higher is better (lower latency and cost for repeated prompts). NOTE: this AzureOpenAI-prefixed metric only reports Azure OpenAI model deployments; non-OpenAI models (Claude, DeepSeek, Kimi, Grok, ...) are not included even when they support caching.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4529,15 +7662,13 @@
           },
           "fieldMinMax": false,
           "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -4546,27 +7677,28 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
-        "w": 20,
-        "x": 0,
-        "y": 25
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 44
       },
       "id": 14,
-      "interval": "1m",
       "maxDataPoints": 60,
       "options": {
         "legend": {
           "calcs": [
-            "max"
+            "mean",
+            "max",
+            "lastNotNull"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
@@ -4589,8 +7721,10 @@
             "dimensionFilters": [
               {
                 "dimension": "ModelDeploymentName",
-                "filters": [],
-                "operator": "eq"
+                "filters": [
+                  "__Empty"
+                ],
+                "operator": "ne"
               }
             ],
             "metricName": "AzureOpenAIContextTokensCacheMatchRate",
@@ -4605,7 +7739,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -4616,7 +7751,7 @@
           "subscription": "$sub"
         }
       ],
-      "title": "Token Cache Match Rate",
+      "title": "Token Cache Match Rate (OpenAI models)",
       "type": "timeseries"
     },
     {
@@ -4624,7 +7759,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "For streaming and non-streaming requests; time it takes for last byte of response data to be received after request is made by model. Applies to PTU, PTU-managed, and Pay-as-you-go deployments.",
+      "description": "Average time to receive the last byte of a model response. Query A uses the model-agnostic TimeToLastByte metric (covers non-OpenAI deployments when they emit it); query B adds AzureOpenAITTLTInMS, which is what Azure OpenAI model traffic actually feeds on Foundry resources. Applies to PTU, PTU-managed, and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4668,15 +7803,12 @@
           },
           "fieldMinMax": false,
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -4685,31 +7817,79 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
-        "w": 20,
+        "h": 10,
+        "w": 12,
         "x": 0,
-        "y": 38
+        "y": 24
       },
       "id": 7,
-      "interval": "1m",
       "maxDataPoints": 60,
       "options": {
         "legend": {
           "calcs": [
-            "max"
+            "mean",
+            "max",
+            "lastNotNull"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
       "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Average",
+            "alias": "{{modeldeploymentname}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "ModelDeploymentName",
+                "filters": [
+                  "__Empty"
+                ],
+                "operator": "ne"
+              }
+            ],
+            "metricName": "TimeToLastByte",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
+              }
+            ],
+            "timeGrain": "auto",
+            "top": "500"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$sub"
+        },
         {
           "azureMonitor": {
             "aggregation": "Average",
@@ -4746,14 +7926,16 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
             "uid": "${am_ds}"
           },
+          "hide": false,
           "queryType": "Azure Monitor",
-          "refId": "A",
+          "refId": "B",
           "subscription": "$sub"
         }
       ],
@@ -4778,7 +7960,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 60,
             "gradientMode": "none",
@@ -4805,43 +7987,42 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
-        "w": 20,
+        "h": 10,
+        "w": 12,
         "x": 0,
-        "y": 51
+        "y": 44
       },
       "id": 8,
-      "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [
-            "sum"
+            "sum",
+            "mean",
+            "max"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
@@ -4882,7 +8063,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -4914,7 +8096,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 60,
             "gradientMode": "none",
@@ -4941,43 +8123,42 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
-        "w": 20,
+        "h": 10,
+        "w": 12,
         "x": 0,
-        "y": 68
+        "y": 34
       },
       "id": 4,
-      "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [
-            "sum"
+            "sum",
+            "mean",
+            "max"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
@@ -5018,7 +8199,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -5037,7 +8219,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Number of tokens generated (output) from an OpenAI model. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
+      "description": "Number of tokens generated (output) by model deployments in this AI Foundry resource. Applies to PTU, PTU-Managed and Pay-as-you-go deployments.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -5050,7 +8232,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 60,
             "gradientMode": "none",
@@ -5077,43 +8259,42 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
-        "w": 20,
-        "x": 0,
-        "y": 85
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 34
       },
       "id": 5,
-      "interval": "1m",
       "maxDataPoints": 30,
       "options": {
         "legend": {
           "calcs": [
-            "sum"
+            "sum",
+            "mean",
+            "max"
           ],
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "11.6.9",
@@ -5154,7 +8335,8 @@
                 "subscription": "$sub"
               }
             ],
-            "timeGrain": "auto"
+            "timeGrain": "auto",
+            "top": "500"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -5167,8 +8349,274 @@
       ],
       "title": "Output Tokens",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Model requests that did not return HTTP 200, split by status code: 429 = throttling/quota exhaustion, 5xx = server errors, 499 = client disconnects. Empty when everything succeeds.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 16,
+      "maxDataPoints": 30,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Total",
+            "alias": "{{statuscode}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "StatusCode",
+                "filters": [
+                  "200"
+                ],
+                "operator": "ne"
+              }
+            ],
+            "metricName": "ModelRequests",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
+              }
+            ],
+            "timeGrain": "auto",
+            "top": "500"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$sub"
+        }
+      ],
+      "title": "Non-200 Model Requests (Throttling & Errors)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Average generation throughput (tokens/second) per deployment. NOTE: AzureOpenAI-prefixed metric - only Azure OpenAI model deployments report it; the model-agnostic TokensPerSecond metric currently emits no data on Foundry resources.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 17,
+      "maxDataPoints": 60,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureMonitor": {
+            "aggregation": "Average",
+            "alias": "{{modeldeploymentname}}",
+            "allowedTimeGrainsMs": [
+              60000,
+              300000,
+              900000,
+              1800000,
+              3600000,
+              21600000,
+              43200000,
+              86400000
+            ],
+            "customNamespace": "microsoft.cognitiveservices/accounts",
+            "dimensionFilters": [
+              {
+                "dimension": "ModelDeploymentName",
+                "filters": [
+                  "__Empty"
+                ],
+                "operator": "ne"
+              }
+            ],
+            "metricName": "AzureOpenAITokenPerSecond",
+            "metricNamespace": "microsoft.cognitiveservices/accounts",
+            "region": "$region",
+            "resources": [
+              {
+                "metricNamespace": "Microsoft.CognitiveServices/accounts",
+                "region": "$region",
+                "resourceGroup": "$rg",
+                "resourceName": "$res",
+                "subscription": "$sub"
+              }
+            ],
+            "timeGrain": "auto",
+            "top": "500"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Monitor",
+          "refId": "A",
+          "subscription": "$sub"
+        }
+      ],
+      "title": "Tokens per Second (OpenAI models)",
+      "type": "timeseries"
     }
   ],
+  "preload": false,
   "schemaVersion": 41,
   "tags": [
     "Azure Monitor",
@@ -5232,6 +8680,7 @@
             "$sub"
           ]
         },
+        "refresh": 1,
         "type": "query"
       },
       {
@@ -5246,7 +8695,7 @@
         "options": [],
         "query": {
           "azureResourceGraph": {
-            "query": "resources\n| where id == '$aiFoundryResourceId'\n| project name"
+            "query": "resources\n| where type =~ \"microsoft.cognitiveservices/accounts\" and resourceGroup =~ '$rg'\n| project name"
           },
           "namespace": "microsoft.cognitiveservices/accounts",
           "queryType": "Azure Resource Names",
@@ -5257,6 +8706,7 @@
             "$sub"
           ]
         },
+        "refresh": 1,
         "sort": 5,
         "type": "query"
       },
@@ -5268,6 +8718,7 @@
         },
         "definition": "",
         "hide": 2,
+        "label": "Region",
         "name": "region",
         "options": [],
         "query": {
@@ -5280,6 +8731,7 @@
             "$sub"
           ]
         },
+        "refresh": 1,
         "type": "query"
       },
       {
@@ -5321,6 +8773,5 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "AIFoundry",
-  "version": 40,
-  "weekStart": ""
+  "version": 62
 }
