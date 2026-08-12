@@ -77,7 +77,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Estimated cost calculated from input and output token usage with model-specific pricing. Only models with a configured price appear as tiles. Audio models (tts/transcribe) are text-token lower bounds - audio usage is not token-metered. model-router is intentionally unpriced - its cost depends on the routed model. Use the Price Scale variable to scale all tiles.",
+      "description": "Estimated cost calculated from input and output token usage with model-specific pricing. Only models with a configured price appear as tiles. Audio models (tts/transcribe) are text-token lower bounds - audio usage is not token-metered. model-router is intentionally unpriced - its cost depends on the routed model. mai-thinking-1 is unpriced - Microsoft has not published per-token rates while it is in private preview. Use the Price Scale variable to scale all tiles.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -219,7 +219,7 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "[Kk]imi-[Kk]3_(input|output)",
+            "regex": "^[Kk]imi-[Kk]3_(input|output)$",
             "renamePattern": "Kimi-K3_$1"
           }
         },
@@ -7084,6 +7084,270 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "cohere-command-a-plus-05-2026_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cohere-command-a-plus-05-2026_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000025"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "cohere-command-a-plus-05-2026_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cohere-command-a-plus-05-2026_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00001"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "cohere-command-a-plus-05-2026",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cohere-command-a-plus-05-2026_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cohere-command-a-plus-05-2026_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "cohere-command-a-plus-05-2026_scaled",
+            "binary": {
+              "left": "cohere-command-a-plus-05-2026",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-glm-5.2-fast_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-glm-5.2-fast_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000021"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-glm-5.2-fast_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-glm-5.2-fast_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000066"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-glm-5.2-fast",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-glm-5.2-fast_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-glm-5.2-fast_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-glm-5.2-fast_scaled",
+            "binary": {
+              "left": "fw-glm-5.2-fast",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-kimi-k3_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-kimi-k3_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000033"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-kimi-k3_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-kimi-k3_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.0000165"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-kimi-k3",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-kimi-k3_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fw-kimi-k3_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "fw-kimi-k3_scaled",
+            "binary": {
+              "left": "fw-kimi-k3",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
@@ -7115,10 +7379,13 @@
               "claude-sonnet-4-5_scaled": "claude-sonnet-4-5",
               "claude-sonnet-4-6_scaled": "claude-sonnet-4-6",
               "claude-sonnet-5_scaled": "claude-sonnet-5",
+              "cohere-command-a-plus-05-2026_scaled": "cohere-command-a-plus-05-2026",
               "deepseek-r1-0528_scaled": "deepseek-r1-0528",
               "deepseek-v3.1_scaled": "deepseek-v3.1",
               "deepseek-v3.2-speciale_scaled": "deepseek-v3.2-speciale",
               "deepseek-v3.2_scaled": "deepseek-v3.2",
+              "fw-glm-5.2-fast_scaled": "fw-glm-5.2-fast",
+              "fw-kimi-k3_scaled": "fw-kimi-k3",
               "gpt-4.1-mini_scaled": "gpt-4.1-mini",
               "gpt-4.1-nano_scaled": "gpt-4.1-nano",
               "gpt-4.1_scaled": "gpt-4.1",
@@ -8773,5 +9040,5 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "AIFoundry",
-  "version": 62
+  "version": 63
 }

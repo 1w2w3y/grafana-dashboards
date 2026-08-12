@@ -11,7 +11,7 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 
 ## Features
 - Totals at a glance
-  - Estimated cost per model, computed from input/output token usage with built-in per-model price mappings (77 models across OpenAI GPT and o-series, Anthropic Claude, xAI Grok, Moonshot Kimi, DeepSeek, and Mistral)
+  - Estimated cost per model, computed from input/output token usage with built-in per-model price mappings (80 models across OpenAI GPT and o-series, Anthropic Claude, xAI Grok, Moonshot Kimi, DeepSeek, Mistral, Cohere, and Fireworks-served open models)
   - Input and Output token totals per model deployment; deployments with zero traffic in the selected window are hidden automatically
 - Request and token trends
   - Model Requests over time, split by deployment
@@ -39,6 +39,7 @@ https://github.com/1w2w3y/grafana-dashboards/issues
   - `AzureOpenAIContextTokensCacheMatchRate` — context-cache hit rate for OpenAI models.
 - Queries group by the `ModelDeploymentName` dimension (the cost panel uses `ModelName`) so you can see usage and performance per model deployment.
 - The Estimated Cost panel multiplies per-model input and output token totals by maintained price mappings inside the panel's transformations. The hidden `priceScale` custom variable applies a uniform multiplier to every cost tile (for example `0.8` for a 20% negotiated discount).
+- Only models with a configured price produce a tile. Models are intentionally left unpriced when a per-token rate cannot be attributed: `model-router` (cost depends on the routed model) and models with no published rate. Audio models (`*-tts`, `*-transcribe`) are priced on text tokens only, so their tiles are a lower bound.
 - Variables:
   - `am_ds` — the Azure Monitor data source.
   - `sub`, `rg`, `res` — subscription, resource group, and AI Foundry resource, each resolved from the previous selection.
@@ -57,3 +58,4 @@ https://github.com/1w2w3y/grafana-dashboards/issues
 - 1/5/2026 update estimated cost with more models like GPT-5.2 and Claude Opus 4.5; add a price scale variable for adjusting cost estimates based on negotiated pricing.
 - 1/15/2026 add cost calculation for GPT-5.2-codex; add labels with values for each panel
 - 8/10/2026 Layout rework: full-width Input/Output token stat rows with zero-value tiles hidden; new Non-200 Model Requests (throttling & errors) and Tokens per Second panels; estimated-cost price table expanded to 77 models (adds GPT-5.3/5.4/5.5/5.6 tiers, Claude 4.6-5 including Fable 5, Grok 4/4.3 and Fast variants, grok-code-fast-1, Kimi K2.5-K3, DeepSeek V4, gpt-oss-120b, gpt-image-2); refreshed GPT-5.6 Terra/Luna prices.
+- 8/12/2026 Estimated-cost price table expanded to 80 models: adds Cohere Command A+ (05-2026), and the Fireworks-served FW-GLM-5.2-Fast and FW-Kimi-K3. Fixed the Kimi-K3 name-normalization rule, which was unanchored and so rewrote prefixed deployment names (for example `fw-kimi-k3`) into a form that never matched its price entry, silently dropping those tokens from the cost total.
