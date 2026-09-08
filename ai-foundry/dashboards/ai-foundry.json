@@ -247,13 +247,6 @@
         {
           "id": "renameByRegex",
           "options": {
-            "regex": "[Kk]imi-[Kk]2\\.5_(input|output)",
-            "renamePattern": "Kimi-K2.5_$1"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
             "regex": "[Kk]imi-[Kk]2\\.7-[Cc]ode_(input|output)",
             "renamePattern": "Kimi-K2.7-Code_$1"
           }
@@ -263,13 +256,6 @@
           "options": {
             "regex": "^[Gg][Pp][Tt]-(.*)_(input|output)$",
             "renamePattern": "gpt-$1_$2"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "^[Oo]([134])(.*)_(input|output)$",
-            "renamePattern": "o$1$2_$3"
           }
         },
         {
@@ -291,92 +277,6 @@
           "options": {
             "regex": "^[Mm][Ii][Ss][Tt][Rr][Aa][Ll]-(.*)_(input|output)$",
             "renamePattern": "mistral-$1_$2"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "^[Dd][Ee][Ee][Pp][Ss][Ee][Ee][Kk]-[Vv]3\\.([12])_(input|output)$",
-            "renamePattern": "deepseek-v3.$1_$2"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "^[Kk][Ii][Mm][Ii]-[Kk]2-[Tt]hinking_(input|output)$",
-            "renamePattern": "kimi-k2-thinking_$1"
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000125"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
           }
         },
         {
@@ -513,150 +413,6 @@
                 "matcher": {
                   "id": "byName",
                   "options": "gpt-5-nano_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-chat_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-chat_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000125"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-chat_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-chat_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-chat",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-chat_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-chat_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-codex_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-codex_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000125"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-codex_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-codex_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-codex",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-codex_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5-codex_output_cost"
                 }
               }
             },
@@ -873,942 +629,6 @@
                 "matcher": {
                   "id": "byName",
                   "options": "gpt-4.1-mini_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4.1-nano_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4.1-nano_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4.1-nano_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4.1-nano_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000004"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4.1-nano",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4.1-nano_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4.1-nano_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000025"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o-mini_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o-mini_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000015"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o-mini_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o-mini_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000006"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o-mini",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o-mini_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-4o-mini_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000003"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000015"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3-mini_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3-mini_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000025"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3-mini_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3-mini_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000127"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3-mini",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3-mini_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-3-mini_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.1_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.1_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000123"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.1_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.1_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000494"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.1",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.1_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.1_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-r1-0528_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-r1-0528_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000135"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-r1-0528_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-r1-0528_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000054"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-r1-0528",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-r1-0528_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-r1-0528_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000015"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00006"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1-mini_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1-mini_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000011"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1-mini_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1-mini_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000044"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1-mini",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1-mini_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o1-mini_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000008"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-pro_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-pro_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-pro_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-pro_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00008"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-pro",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-pro_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-pro_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-mini_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-mini_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000011"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-mini_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-mini_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000044"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-mini",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-mini_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o3-mini_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o4-mini_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o4-mini_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000011"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o4-mini_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o4-mini_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000044"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o4-mini",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o4-mini_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "o4-mini_output_cost"
                 }
               }
             },
@@ -2470,78 +1290,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "gpt-5.1-chat_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.1-chat_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000125"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.1-chat_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.1-chat_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00001"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.1-chat",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.1-chat_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.1-chat_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "gpt-5.1-codex_input_cost",
             "binary": {
               "left": {
@@ -2758,78 +1506,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "gpt-5.2-chat_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.2-chat_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000175"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.2-chat_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.2-chat_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000014"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5.2-chat",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.2-chat_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "gpt-5.2-chat_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "gpt-5.2-codex_input_cost",
             "binary": {
               "left": {
@@ -2902,78 +1578,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "kimi-k2-thinking_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "kimi-k2-thinking_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000006"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "kimi-k2-thinking_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "kimi-k2-thinking_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000025"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "kimi-k2-thinking",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "kimi-k2-thinking_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "kimi-k2-thinking_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "mistral-large-3_input_cost",
             "binary": {
               "left": {
@@ -3033,150 +1637,6 @@
                 "matcher": {
                   "id": "byName",
                   "options": "mistral-large-3_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000058"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000168"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2-speciale_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2-speciale_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000058"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2-speciale_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2-speciale_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000168"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2-speciale",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2-speciale_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "deepseek-v3.2-speciale_output_cost"
                 }
               }
             },
@@ -3334,94 +1794,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "Kimi-K2.5_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Kimi-K2.5_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000006"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "Kimi-K2.5_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Kimi-K2.5_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.000003"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "Kimi-K2.5",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Kimi-K2.5_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Kimi-K2.5_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5_scaled",
-            "binary": {
-              "left": "gpt-5",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "gpt-5-mini_scaled",
             "binary": {
               "left": "gpt-5-mini",
@@ -3441,38 +1813,6 @@
             "alias": "gpt-5-nano_scaled",
             "binary": {
               "left": "gpt-5-nano",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-chat_scaled",
-            "binary": {
-              "left": "gpt-5-chat",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-5-codex_scaled",
-            "binary": {
-              "left": "gpt-5-codex",
               "operator": "*",
               "right": "${priceScale}"
             },
@@ -3521,214 +1861,6 @@
             "alias": "gpt-4.1-mini_scaled",
             "binary": {
               "left": "gpt-4.1-mini",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4.1-nano_scaled",
-            "binary": {
-              "left": "gpt-4.1-nano",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o_scaled",
-            "binary": {
-              "left": "gpt-4o",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "gpt-4o-mini_scaled",
-            "binary": {
-              "left": "gpt-4o-mini",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3_scaled",
-            "binary": {
-              "left": "grok-3",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-3-mini_scaled",
-            "binary": {
-              "left": "grok-3-mini",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.1_scaled",
-            "binary": {
-              "left": "deepseek-v3.1",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-r1-0528_scaled",
-            "binary": {
-              "left": "deepseek-r1-0528",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1_scaled",
-            "binary": {
-              "left": "o1",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o1-mini_scaled",
-            "binary": {
-              "left": "o1-mini",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3_scaled",
-            "binary": {
-              "left": "o3",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-pro_scaled",
-            "binary": {
-              "left": "o3-pro",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o3-mini_scaled",
-            "binary": {
-              "left": "o3-mini",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "o4-mini_scaled",
-            "binary": {
-              "left": "o4-mini",
               "operator": "*",
               "right": "${priceScale}"
             },
@@ -3886,22 +2018,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "gpt-5.1-chat_scaled",
-            "binary": {
-              "left": "gpt-5.1-chat",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "gpt-5.1-codex_scaled",
             "binary": {
               "left": "gpt-5.1-codex",
@@ -3950,22 +2066,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "gpt-5.2-chat_scaled",
-            "binary": {
-              "left": "gpt-5.2-chat",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "gpt-5.2-codex_scaled",
             "binary": {
               "left": "gpt-5.2-codex",
@@ -3982,57 +2082,9 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "kimi-k2-thinking_scaled",
-            "binary": {
-              "left": "kimi-k2-thinking",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "mistral-large-3_scaled",
             "binary": {
               "left": "mistral-large-3",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2_scaled",
-            "binary": {
-              "left": "deepseek-v3.2",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "deepseek-v3.2-speciale_scaled",
-            "binary": {
-              "left": "deepseek-v3.2-speciale",
               "operator": "*",
               "right": "${priceScale}"
             },
@@ -4065,22 +2117,6 @@
             "alias": "gpt-5.3-codex_scaled",
             "binary": {
               "left": "gpt-5.3-codex",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "Kimi-K2.5_scaled",
-            "binary": {
-              "left": "Kimi-K2.5",
               "operator": "*",
               "right": "${priceScale}"
             },
@@ -6470,446 +4506,6 @@
         {
           "id": "calculateField",
           "options": {
-            "alias": "grok-4_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000055"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000275"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4_scaled",
-            "binary": {
-              "left": "grok-4",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-reasoning_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-reasoning_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000043"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-reasoning_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-reasoning_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000173"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-reasoning",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-reasoning_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-reasoning_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-reasoning_scaled",
-            "binary": {
-              "left": "grok-4-fast-reasoning",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-non-reasoning_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-non-reasoning_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000043"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-non-reasoning_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-non-reasoning_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.00000173"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-non-reasoning",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-non-reasoning_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-fast-non-reasoning_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-fast-non-reasoning_scaled",
-            "binary": {
-              "left": "grok-4-fast-non-reasoning",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-reasoning_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-reasoning_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-reasoning_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-reasoning_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000005"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-reasoning",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-reasoning_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-reasoning_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-reasoning_scaled",
-            "binary": {
-              "left": "grok-4-1-fast-reasoning",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-non-reasoning_input_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-non-reasoning_input"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000002"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-non-reasoning_output_cost",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-non-reasoning_output"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "0.0000005"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-non-reasoning",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-non-reasoning_input_cost"
-                }
-              },
-              "operator": "+",
-              "right": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "grok-4-1-fast-non-reasoning_output_cost"
-                }
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "grok-4-1-fast-non-reasoning_scaled",
-            "binary": {
-              "left": "grok-4-1-fast-non-reasoning",
-              "operator": "*",
-              "right": "${priceScale}"
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
             "alias": "grok-code-fast-1_input_cost",
             "binary": {
               "left": {
@@ -7348,6 +4944,182 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-6-astra_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-6-astra_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00001"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-6-astra_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-6-astra_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.00005"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-6-astra",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-6-astra_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gpt-6-astra_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "gpt-6-astra_scaled",
+            "binary": {
+              "left": "gpt-6-astra",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.6_input_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.6_input"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000002"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.6_output_cost",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.6_output"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "0.000006"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.6",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.6_input_cost"
+                }
+              },
+              "operator": "+",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "grok-4.6_output_cost"
+                }
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "grok-4.6_scaled",
+            "binary": {
+              "left": "grok-4.6",
+              "operator": "*",
+              "right": "${priceScale}"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
@@ -7364,7 +5136,6 @@
             "renameByName": {
               "DeepSeek-V4-Flash_scaled": "DeepSeek-V4-Flash",
               "DeepSeek-V4-Pro_scaled": "DeepSeek-V4-Pro",
-              "Kimi-K2.5_scaled": "Kimi-K2.5",
               "Kimi-K2.6_scaled": "Kimi-K2.6",
               "Kimi-K2.7-Code_scaled": "Kimi-K2.7-Code",
               "Kimi-K3_scaled": "Kimi-K3",
@@ -7380,30 +5151,19 @@
               "claude-sonnet-4-6_scaled": "claude-sonnet-4-6",
               "claude-sonnet-5_scaled": "claude-sonnet-5",
               "cohere-command-a-plus-05-2026_scaled": "cohere-command-a-plus-05-2026",
-              "deepseek-r1-0528_scaled": "deepseek-r1-0528",
-              "deepseek-v3.1_scaled": "deepseek-v3.1",
-              "deepseek-v3.2-speciale_scaled": "deepseek-v3.2-speciale",
-              "deepseek-v3.2_scaled": "deepseek-v3.2",
               "fw-glm-5.2-fast_scaled": "fw-glm-5.2-fast",
               "fw-kimi-k3_scaled": "fw-kimi-k3",
               "gpt-4.1-mini_scaled": "gpt-4.1-mini",
-              "gpt-4.1-nano_scaled": "gpt-4.1-nano",
               "gpt-4.1_scaled": "gpt-4.1",
               "gpt-4o-mini-transcribe_scaled": "gpt-4o-mini-transcribe",
               "gpt-4o-mini-tts_scaled": "gpt-4o-mini-tts",
-              "gpt-4o-mini_scaled": "gpt-4o-mini",
-              "gpt-4o_scaled": "gpt-4o",
-              "gpt-5-chat_scaled": "gpt-5-chat",
-              "gpt-5-codex_scaled": "gpt-5-codex",
               "gpt-5-mini_scaled": "gpt-5-mini",
               "gpt-5-nano_scaled": "gpt-5-nano",
               "gpt-5-pro_scaled": "gpt-5-pro",
-              "gpt-5.1-chat_scaled": "gpt-5.1-chat",
               "gpt-5.1-codex-max_scaled": "gpt-5.1-codex-max",
               "gpt-5.1-codex-mini_scaled": "gpt-5.1-codex-mini",
               "gpt-5.1-codex_scaled": "gpt-5.1-codex",
               "gpt-5.1_scaled": "gpt-5.1",
-              "gpt-5.2-chat_scaled": "gpt-5.2-chat",
               "gpt-5.2-codex_scaled": "gpt-5.2-codex",
               "gpt-5.2_scaled": "gpt-5.2",
               "gpt-5.3-chat_scaled": "gpt-5.3-chat",
@@ -7418,30 +5178,17 @@
               "gpt-5.6-luna_scaled": "gpt-5.6-luna",
               "gpt-5.6-sol_scaled": "gpt-5.6-sol",
               "gpt-5.6-terra_scaled": "gpt-5.6-terra",
-              "gpt-5_scaled": "gpt-5",
+              "gpt-6-astra_scaled": "gpt-6-astra",
               "gpt-chat-latest_scaled": "gpt-chat-latest",
               "gpt-image-1-mini_scaled": "gpt-image-1-mini",
               "gpt-image-1.5_scaled": "gpt-image-1.5",
               "gpt-image-1_scaled": "gpt-image-1",
               "gpt-image-2_scaled": "gpt-image-2",
               "gpt-oss-120b_scaled": "gpt-oss-120b",
-              "grok-3-mini_scaled": "grok-3-mini",
-              "grok-3_scaled": "grok-3",
-              "grok-4-1-fast-non-reasoning_scaled": "grok-4-1-fast-non-reasoning",
-              "grok-4-1-fast-reasoning_scaled": "grok-4-1-fast-reasoning",
-              "grok-4-fast-non-reasoning_scaled": "grok-4-fast-non-reasoning",
-              "grok-4-fast-reasoning_scaled": "grok-4-fast-reasoning",
               "grok-4.3_scaled": "grok-4.3",
-              "grok-4_scaled": "grok-4",
+              "grok-4.6_scaled": "grok-4.6",
               "grok-code-fast-1_scaled": "grok-code-fast-1",
-              "kimi-k2-thinking_scaled": "kimi-k2-thinking",
-              "mistral-large-3_scaled": "mistral-large-3",
-              "o1-mini_scaled": "o1-mini",
-              "o1_scaled": "o1",
-              "o3-mini_scaled": "o3-mini",
-              "o3-pro_scaled": "o3-pro",
-              "o3_scaled": "o3",
-              "o4-mini_scaled": "o4-mini"
+              "mistral-large-3_scaled": "mistral-large-3"
             }
           }
         }
@@ -9040,5 +6787,5 @@
   "timezone": "browser",
   "title": "AI Foundry",
   "uid": "AIFoundry",
-  "version": 63
+  "version": 67
 }
