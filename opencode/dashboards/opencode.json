@@ -1,44 +1,44 @@
 {
+  "__elements": {},
   "__inputs": [
     {
-      "name": "DS_AZURE_MONITOR",
-      "label": "Azure Monitor",
       "description": "",
-      "type": "datasource",
+      "label": "Azure Monitor",
+      "name": "am_ds",
       "pluginId": "grafana-azure-monitor-datasource",
-      "pluginName": "Azure Monitor"
+      "pluginName": "Azure Monitor",
+      "type": "datasource"
     }
   ],
-  "__elements": {},
   "__requires": [
     {
-      "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
+      "type": "grafana",
       "version": "11.6.9"
     },
     {
-      "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
+      "type": "datasource",
       "version": "11.6.9"
     },
     {
-      "type": "panel",
       "id": "stat",
       "name": "Stat",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "table",
       "name": "Table",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "timeseries",
       "name": "Time series",
+      "type": "panel",
       "version": ""
     }
   ],
@@ -58,6 +58,7 @@
       }
     ]
   },
+  "description": "OpenCode application telemetry, scoped exactly to cloud_RoleName == \"opencode\". Select an Application Insights resource. SDK operations, explicit prompt events, tool spans, and other instrumentation are separate populations. Both classic and native OTLP component compatibility views are supported; missing usage, outcomes, and exception text remain unknown. See coverage panels and descriptions for limitations.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -95,7 +96,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total number of sessions",
+      "description": "Distinct non-empty session IDs observed in application-scoped spans and logs during the selected window. A session is counted once across both signals. This is observed activity, not sessions created; missing IDs and process/run IDs are not sessions.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -103,6 +104,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -113,7 +115,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -130,7 +145,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -144,12 +159,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "traces\n| where cloud_RoleName == \"opencode\"\n| summarize sessions = dcount(tostring(customDimensions[\"opencode.run_id\"]))",
+            "query": "union\n(dependencies | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\" | project sessionId = coalesce(tostring(customDimensions[\"ai.telemetry.metadata.sessionId\"]), tostring(customDimensions[\"session.id\"]))),\n(traces | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\" | project sessionId = coalesce(tostring(customDimensions[\"ai.telemetry.metadata.sessionId\"]), tostring(customDimensions[\"session.id\"])))\n| where isnotempty(sessionId)\n| summarize by sessionId\n| summarize sessions = count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -159,7 +173,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Sessions",
+      "title": "Observed Sessions",
       "type": "stat"
     },
     {
@@ -167,7 +181,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total user prompts sent",
+      "description": "Count of explicit user_prompt log events from OpenCode telemetry hooks. This signal covers only instrumented sessions; it is not interchangeable with SessionPrompt.prompt spans or all AI SDK operations.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -175,6 +189,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -185,7 +200,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -202,7 +230,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -216,12 +244,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "traces\n| where cloud_RoleName == \"opencode\"\n| where tostring(customDimensions[\"service\"]) == \"session.prompt\"\n| where tostring(customDimensions[\"step\"]) == \"0\"\n| summarize count() by bin(timestamp, 1d)\n| order by timestamp asc",
+            "query": "traces | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where tostring(customDimensions[\"event.name\"]) == \"user_prompt\"\n| summarize prompts = count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -231,7 +258,7 @@
           "refId": "A"
         }
       ],
-      "title": "User Prompts",
+      "title": "User Prompt Events",
       "type": "stat"
     },
     {
@@ -239,7 +266,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Count of ai.streamText spans (LLM stream calls)",
+      "description": "Number of ai.streamText SDK operation spans, including failed operations. Excludes nested ai.streamText.doStream attempts and separate opencode.llm telemetry. This is not a count of HTTP retries or user prompts.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -247,6 +274,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -257,7 +285,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -274,7 +315,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -288,12 +329,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize llmCalls = count()",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize llmCalls = count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -311,7 +351,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Sum of ai.usage.totalTokens across all LLM calls",
+      "description": "Reported ai.usage.totalTokens on ai.streamText operations only. Missing or inconsistent usage is excluded, not zero consumption. See Token Reporting % and LLM Usage Coverage. Child doStream spans and opencode.llm observations are not added.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -319,6 +359,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -329,7 +370,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -346,7 +400,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -360,12 +414,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize totalTokens = sum(toint(customDimensions[\"ai.usage.totalTokens\"]))",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| summarize totalTokens = sumif(total, validUsage), reported = countif(validUsage)\n| project totalTokens = iff(reported > 0, totalTokens, real(null))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -375,7 +428,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Tokens",
+      "title": "Reported Tokens",
       "type": "stat"
     },
     {
@@ -383,7 +436,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Cache-read tokens as % of input tokens",
+      "description": "Cache-read tokens divided by input tokens on the same ai.streamText operations with valid cache-read and positive input measurements. Cached input is already included in total input. Missing measurements are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -392,6 +445,7 @@
           },
           "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -402,7 +456,20 @@
           },
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -433,12 +500,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize pct = 100.0 * sum(toint(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"])) / todouble(sum(toint(customDimensions[\"ai.usage.inputTokens\"])))",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| where input > 0 and isnotnull(cacheRead) and cacheRead >= 0 and cacheRead <= input\n| summarize cached = sum(cacheRead), input = sum(input)\n| project pct = iff(input > 0, 100.0 * cached / input, real(null))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -456,7 +522,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total exceptions in window",
+      "description": "Exception telemetry records for opencode, not distinct failed operations. Ingestion paths may retain different exception events; native exception text can be absent.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -464,6 +530,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -474,7 +541,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -491,7 +571,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -505,12 +585,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "exceptions\n| where cloud_RoleName == \"opencode\"\n| summarize exceptions = count()",
+            "query": "exceptions | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| summarize exceptions = count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -520,7 +599,7 @@
           "refId": "A"
         }
       ],
-      "title": "Exceptions",
+      "title": "Exception Records",
       "type": "stat"
     },
     {
@@ -541,7 +620,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total Tool.execute span count",
+      "description": "Count of Tool.execute spans only. Excludes ai.toolCall wrappers and separate opencode.tool.* observations to avoid mixing populations.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -549,6 +628,7 @@
             "mode": "fixed"
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -559,7 +639,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -576,7 +669,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -590,12 +683,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| summarize toolCalls = count()",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| summarize toolCalls = count()",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -613,7 +705,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "% of Tool.execute spans with otel.status_code = STATUS_CODE_ERROR",
+      "description": "Failed Tool.execute spans divided by spans with a known success flag. Uses the component compatibility-view success field, which is present on both ingestion paths. Missing outcomes are excluded; see the tool table unknown column.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -622,6 +714,7 @@
           },
           "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -632,7 +725,20 @@
           },
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -663,12 +769,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| summarize pct = 100.0 * countif(tostring(customDimensions[\"otel.status_code\"]) == \"STATUS_CODE_ERROR\") / todouble(count())",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| summarize failed = countif(success == false), known = countif(isnotnull(success))\n| project pct = iff(known > 0, 100.0 * failed / known, real(null))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -686,14 +791,16 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total ai.streamText tokens divided by SessionPrompt.prompt count",
+      "description": "Share of ai.streamText operations reporting non-negative input/output and a matching total token count. Includes failed operations in the denominator. Missing usage is unknown, not zero. Replaces the invalid ratio of SDK tokens to a different prompt-span population.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "fixedColor": "orange",
             "mode": "fixed"
           },
+          "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -702,9 +809,22 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -735,12 +855,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let prompts = toscalar(dependencies | where cloud_RoleName == \"opencode\" | where name == \"SessionPrompt.prompt\" | summarize count());\nlet totalTok = toscalar(dependencies | where cloud_RoleName == \"opencode\" | where name == \"ai.streamText\" | summarize sum(toint(customDimensions[\"ai.usage.totalTokens\"])));\nprint avgPerPrompt = todouble(totalTok) / todouble(prompts)",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| summarize calls = count(), reported = countif(validUsage)\n| project pct = iff(calls > 0, 100.0 * reported / calls, real(null))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -750,7 +869,7 @@
           "refId": "A"
         }
       ],
-      "title": "Avg Tokens / Prompt",
+      "title": "Token Reporting %",
       "type": "stat"
     },
     {
@@ -758,7 +877,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "p95 of SessionPrompt.prompt span duration (end-to-end prompt time including tool calls)",
+      "description": "p95 duration of completed SessionPrompt.prompt spans, converted from milliseconds to seconds. Covers this span population only, not every user_prompt event or session. Spans include tool/agent work and may be long; not model time-to-first-token.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -767,6 +886,7 @@
           },
           "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -777,7 +897,20 @@
           },
           "unit": "s"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -808,12 +941,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"SessionPrompt.prompt\"\n| summarize p95s = percentile(duration, 95) / 1000.0",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"SessionPrompt.prompt\"\n| summarize p95s = percentile(duration, 95) / 1000.0",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -823,7 +955,7 @@
           "refId": "A"
         }
       ],
-      "title": "Prompt p95 Latency",
+      "title": "Prompt Span p95",
       "type": "stat"
     },
     {
@@ -831,7 +963,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Average ai.usage.outputTokens per LLM call",
+      "description": "Average output tokens among ai.streamText operations with a reported non-negative output count. Missing measurements are excluded, not counted as zero.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -840,6 +972,7 @@
           },
           "decimals": 0,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -850,7 +983,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -881,12 +1027,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize avgOut = avg(toint(customDimensions[\"ai.usage.outputTokens\"]))",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend output = todouble(customDimensions[\"ai.usage.outputTokens\"])\n| where isnotnull(output) and output >= 0\n| summarize avgOut = avg(output)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -896,7 +1041,7 @@
           "refId": "A"
         }
       ],
-      "title": "Avg Output Tokens / Call",
+      "title": "Avg Reported Output / Call",
       "type": "stat"
     },
     {
@@ -904,7 +1049,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Cache-write tokens as % of input tokens (new content added to prompt cache)",
+      "description": "Cache-write tokens divided by input tokens on the same operations reporting valid cache-write measurements. Models without this attribute are excluded, not assigned zero. See per-model reporting coverage.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -913,6 +1058,7 @@
           },
           "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -923,7 +1069,20 @@
           },
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -954,12 +1113,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize pct = 100.0 * sum(toint(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])) / todouble(sum(toint(customDimensions[\"ai.usage.inputTokens\"])))",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| where input > 0 and isnotnull(cacheWrite) and cacheWrite >= 0 and cacheWrite <= input\n| summarize written = sum(cacheWrite), input = sum(input)\n| project pct = iff(input > 0, 100.0 * written / input, real(null))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -969,7 +1127,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cache Write %",
+      "title": "Cache Write % (Reported)",
       "type": "stat"
     },
     {
@@ -990,7 +1148,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "LLM call rate over time, stacked by model",
+      "description": "Count of ai.streamText operations per dynamic time bin, stacked by reported model. Counts are not a per-second rate.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1030,6 +1188,7 @@
             }
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1040,7 +1199,20 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1068,7 +1240,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = tostring(customDimensions[\"ai.model.id\"])\n| summarize calls = count() by bin(timestamp, $__interval), model\n| order by timestamp asc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = coalesce(tostring(customDimensions[\"ai.model.id\"]), \"(not reported)\")\n| summarize calls = count() by bin(timestamp, $__interval), model\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1091,7 +1263,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Token usage stacked: input / output / cache-read",
+      "description": "Disjoint stack for operations with valid token and cache-read measurements: other input (including cache writes), cache-read input, and output. Cache-read is a subset of input, so total input is not stacked again. Missing usage is omitted.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1131,6 +1303,7 @@
             }
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1141,7 +1314,77 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "otherInput"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Other input"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cacheRead"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cache-read input"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "output"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1169,7 +1412,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize input = sum(toint(customDimensions[\"ai.usage.inputTokens\"])), output = sum(toint(customDimensions[\"ai.usage.outputTokens\"])), cacheRead = sum(toint(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"])) by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| where validUsage and isnotnull(cacheRead) and cacheRead >= 0 and cacheRead <= input\n| summarize otherInput = sum(input - cacheRead), cacheRead = sum(cacheRead), output = sum(output) by bin(timestamp, $__interval)\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1205,7 +1448,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Tool executions from Tool.execute spans, with failures and p95 latency",
+      "description": "Top 30 tools by Tool.execute span count. Failures use the normalized success flag; unknown counts missing outcomes. Total duration sums individual executions and is not wall-clock elapsed time.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1213,9 +1456,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 75
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1226,6 +1471,18 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -1285,6 +1542,22 @@
                 "value": 110
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "toolName"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 260
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
+              }
+            ]
           }
         ]
       },
@@ -1297,6 +1570,7 @@
       "id": 13,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1312,12 +1586,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| extend toolName = tostring(customDimensions[\"tool.name\"]),\n         status = tostring(customDimensions[\"otel.status_code\"])\n| summarize calls = count(),\n            failures = countif(status == \"STATUS_CODE_ERROR\"),\n            totalSec = round(sum(duration)/1000.0, 2),\n            p95ms = percentile(duration, 95)\n  by toolName\n| order by totalSec desc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"Tool.execute\"\n| extend toolName = coalesce(tostring(customDimensions[\"tool.name\"]), \"(not reported)\")\n| summarize calls = count(), failures = countif(success == false), unknown = countif(isnull(success)),\n            totalSec = round(sum(duration) / 1000.0, 2), p95ms = percentile(duration, 95) by toolName\n| order by calls desc, toolName asc\n| take 30",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1335,7 +1608,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "webfetch destinations with failure count and p95 latency",
+      "description": "Top 20 destinations for all instrumented HTTP client spans, including metadata/model requests; not exclusively WebFetch. Handles native HTTP spans and classic http.client spans. Uses valid HTTP status attributes first, then valid resultCode; other includes unknown and 1xx.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1343,9 +1616,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 65
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1358,13 +1633,25 @@
         "overrides": [
           {
             "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
               "id": "byName",
               "options": "host"
             },
             "properties": [
               {
-                "id": "custom.minWidth",
-                "value": 220
+                "id": "custom.width",
+                "value": 200
               }
             ]
           },
@@ -1421,6 +1708,7 @@
       "id": 14,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1436,12 +1724,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where type == \"Other\" and name startswith \"http.client\"\n| extend host = tostring(customDimensions[\"server.address\"]),\n         status = toint(customDimensions[\"http.response.status_code\"])\n| summarize calls = count(),\n            s2xx = countif(status >= 200 and status < 300),\n            s4xx = countif(status >= 400 and status < 500),\n            s5xx = countif(status >= 500)\n  by host\n| order by calls desc",
+            "query": "dependencies | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where type =~ \"http\" or name startswith \"http.client\"\n| extend hostRaw = coalesce(tostring(customDimensions[\"server.address\"]), tostring(parse_url(data).Host), target),\n         attributeStatus = toint(customDimensions[\"http.response.status_code\"]), resultStatus = toint(resultCode)\n| extend host = coalesce(tostring(parse_url(iff(hostRaw contains \"://\", hostRaw, strcat(\"https://\", hostRaw))).Host), \"(not reported)\"),\n         status = case(attributeStatus between (100 .. 599), attributeStatus, resultStatus between (100 .. 599), resultStatus, int(null))\n| summarize calls = count(), s2xx = countif(status between (200 .. 299)), s3xx = countif(status between (300 .. 399)),\n            s4xx = countif(status between (400 .. 499)), s5xx = countif(status between (500 .. 599)),\n            other = countif(isnull(status) or status < 200) by host\n| order by calls desc, host asc\n| take 20",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1451,7 +1738,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top WebFetch Hosts",
+      "title": "HTTP Destinations",
       "type": "table"
     },
     {
@@ -1459,7 +1746,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "LLM call latency p50/p95 per model",
+      "description": "ai.streamText operation durations in milliseconds, including streaming and any nested tool work. Not first-token or single-network-request latency. Both p50 and p95 are shown.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1467,9 +1754,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 90
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1483,12 +1772,45 @@
           {
             "matcher": {
               "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
               "options": ".*ms"
             },
             "properties": [
               {
                 "id": "unit",
                 "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "failures"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
               }
             ]
           }
@@ -1503,6 +1825,7 @@
       "id": 15,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1518,12 +1841,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = tostring(customDimensions[\"ai.model.id\"])\n| summarize calls = count(), p95ms = percentile(duration, 95) by model\n| order by calls desc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = coalesce(tostring(customDimensions[\"ai.model.id\"]), \"(not reported)\")\n| summarize calls = count(), failures = countif(success == false), p50ms = percentile(duration, 50), p95ms = percentile(duration, 95) by model\n| order by calls desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1554,7 +1876,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Top sessions by token usage (last 7d default)",
+      "description": "Top 10 non-empty SDK session IDs by reported valid ai.streamText tokens. Unreported usage is unknown; reported counts operations with valid usage. Sessions without an ID are excluded.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1562,9 +1884,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 90
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1577,6 +1901,18 @@
         "overrides": [
           {
             "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
               "id": "byName",
               "options": "spanMin"
             },
@@ -1584,6 +1920,18 @@
               {
                 "id": "unit",
                 "value": "m"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sessionId"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 320
               }
             ]
           }
@@ -1598,6 +1946,7 @@
       "id": 16,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1613,12 +1962,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend sessionId = tostring(customDimensions[\"ai.telemetry.metadata.sessionId\"]),\n         totTok = toint(customDimensions[\"ai.usage.totalTokens\"])\n| summarize llmCalls = count(),\n            totalTokens = sum(totTok)\n  by sessionId\n| order by totalTokens desc\n| take 10",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| extend sessionId = coalesce(tostring(customDimensions[\"ai.telemetry.metadata.sessionId\"]), tostring(customDimensions[\"session.id\"]))\n| where isnotempty(sessionId)\n| summarize llmCalls = count(), reported = countif(validUsage), totalTokens = sumif(total, validUsage) by sessionId\n| extend totalTokens = iff(reported > 0, totalTokens, real(null))\n| order by totalTokens desc\n| take 10",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1636,7 +1984,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Top distinct exception messages (last 7d default)",
+      "description": "Top exception groups by full exported outer message and type; display text is limited to 160 characters. Native OTLP can omit outerMessage. Missing text is marked explicitly, not reconstructed.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1644,9 +1992,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 90
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1657,6 +2007,18 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -1685,8 +2047,12 @@
             },
             "properties": [
               {
-                "id": "custom.minWidth",
-                "value": 360
+                "id": "custom.width",
+                "value": 480
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
               }
             ]
           }
@@ -1701,6 +2067,7 @@
       "id": 17,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1716,12 +2083,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "exceptions\n| where cloud_RoleName == \"opencode\"\n| extend errType = type, msg = substring(outerMessage, 0, 80)\n| summarize calls = count() by errType, msg\n| order by calls desc\n| take 10",
+            "query": "exceptions | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| extend errType = coalesce(type, \"(not reported)\"), fullMessage = outerMessage\n| summarize calls = count() by errType, fullMessage\n| order by calls desc, errType asc\n| take 10\n| project errType, calls, msg = iff(isempty(fullMessage), \"(message not exported)\", substring(fullMessage, 0, 160))",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1739,7 +2105,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "LLM calls and tokens broken down by AI provider",
+      "description": "ai.streamText operation counts and reported valid tokens by provider. Reported counts operations with usable usage; missing usage is not zero.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1747,9 +2113,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 90
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1759,7 +2127,20 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1770,6 +2151,7 @@
       "id": 18,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1785,12 +2167,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend provider = tostring(customDimensions[\"ai.model.provider\"]),\n         totTok = toint(customDimensions[\"ai.usage.totalTokens\"])\n| summarize calls = count(),\n            totalTokens = sum(totTok)\n  by provider\n| order by totalTokens desc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| extend provider = coalesce(tostring(customDimensions[\"ai.model.provider\"]), \"(not reported)\")\n| summarize calls = count(), reported = countif(validUsage), totalTokens = sumif(total, validUsage) by provider\n| extend totalTokens = iff(reported > 0, totalTokens, real(null))\n| order by totalTokens desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1821,7 +2202,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Why each ai.streamText call ended. High tool-calls % means more agent loops per prompt.",
+      "description": "Reported finish reason for ai.streamText operations. Missing reasons remain unknown. A tool-calls finish reason is not an error or a complete user-prompt outcome.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -1829,9 +2210,11 @@
             "cellOptions": {
               "type": "auto"
             },
-            "inspect": false
+            "inspect": false,
+            "minWidth": 90
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1842,6 +2225,18 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -1868,6 +2263,7 @@
       "id": 301,
       "options": {
         "cellHeight": "sm",
+        "enablePagination": true,
         "footer": {
           "countRows": false,
           "fields": "",
@@ -1883,12 +2279,11 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = tostring(customDimensions[\"ai.model.id\"]),\n         finishReason = tostring(customDimensions[\"ai.response.finishReason\"])\n| summarize calls = count() by model, finishReason\n| order by calls desc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = coalesce(tostring(customDimensions[\"ai.model.id\"]), \"(not reported)\")\n| extend finishReason = coalesce(tostring(customDimensions[\"ai.response.finishReason\"]), \"(not reported)\")\n| summarize calls = count() by model, finishReason\n| order by calls desc\n| take 30",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "table",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
@@ -1906,7 +2301,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "End-to-end SessionPrompt.prompt latency (avg & p95) — watch for trend growth as sessions get longer.",
+      "description": "Average and p95 completed SessionPrompt.prompt span duration per dynamic bin. Includes tool/agent work, not just LLM response time. Quiet bins remain gaps.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1946,6 +2341,7 @@
             }
           },
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1956,7 +2352,20 @@
           },
           "unit": "s"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1984,7 +2393,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"SessionPrompt.prompt\"\n| summarize avgSec = avg(duration)/1000.0, p95Sec = percentile(duration, 95)/1000.0\n  by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"SessionPrompt.prompt\"\n| summarize avgSec = avg(duration) / 1000.0, p95Sec = percentile(duration, 95) / 1000.0 by bin(timestamp, $__interval)\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1999,7 +2408,7 @@
           "refId": "A"
         }
       ],
-      "title": "Prompt Latency Over Time",
+      "title": "Prompt Span Duration Over Time",
       "type": "timeseries"
     },
     {
@@ -2007,7 +2416,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "cacheRead / inputTokens. Trends the Cache Read % stat — watch for drops after prompt edits invalidate the prefix cache.",
+      "description": "Token-weighted cache-read input share for operations reporting valid cache-read and input measurements. Not the percentage of requests with a cache hit.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2051,6 +2460,7 @@
           },
           "decimals": 1,
           "mappings": [],
+          "noValue": "Not reported",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2061,7 +2471,20 @@
           },
           "unit": "percent"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -2089,7 +2512,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| summarize cachePct = 100.0 * sum(toint(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"])) / todouble(sum(toint(customDimensions[\"ai.usage.inputTokens\"])))\n  by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| where input > 0 and isnotnull(cacheRead) and cacheRead >= 0 and cacheRead <= input\n| summarize cached = sum(cacheRead), input = sum(input) by bin(timestamp, $__interval)\n| project timestamp, cachePct = iff(input > 0, 100.0 * cached / input, real(null))\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2104,29 +2527,499 @@
           "refId": "A"
         }
       ],
-      "title": "Cache Hit Ratio Over Time",
+      "title": "Cache Read Token Share",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 400,
+      "panels": [],
+      "title": "Telemetry Coverage & Outcomes",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "ai.streamText operations grouped by normalized success. Explicit failure is red; missing status is unknown, never inferred as success.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(calls )?Failed$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(calls )?Succeeded$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(calls )?Unknown$"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 304,
+      "maxDataPoints": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend outcome = case(success == false, \"Failed\", success == true, \"Succeeded\", \"Unknown\")\n| summarize calls = count() by bin(timestamp, $__interval), outcome\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM Outcomes Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Per-model ai.streamText coverage. Usage requires consistent non-negative input/output/total. Cache-write requires a valid measured cache-write value, including explicit zero; absent is not zero. Last call is the latest span start, not ingestion time.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false,
+            "minWidth": 90
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "model"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 135
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "calls"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "usagePct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Usage reported"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cacheWritePct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cache-write reported"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 175
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sessionPct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Session ID reported"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lastCall"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 305,
+      "options": {
+        "cellHeight": "sm",
+        "enablePagination": true,
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n| where name == \"ai.streamText\"\n| extend model = coalesce(tostring(customDimensions[\"ai.model.id\"]), \"(not reported)\")\n| extend input = todouble(customDimensions[\"ai.usage.inputTokens\"]),\n         output = todouble(customDimensions[\"ai.usage.outputTokens\"]),\n         total = todouble(customDimensions[\"ai.usage.totalTokens\"]),\n         cacheRead = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheReadTokens\"]),\n         cacheWrite = todouble(customDimensions[\"ai.usage.inputTokenDetails.cacheWriteTokens\"])\n| extend validUsage = isnotnull(total) and isnotnull(input) and isnotnull(output) and input >= 0 and output >= 0 and total == input + output\n| extend sessionId = coalesce(tostring(customDimensions[\"ai.telemetry.metadata.sessionId\"]), tostring(customDimensions[\"session.id\"]))\n| summarize calls = count(), reported = countif(validUsage),\n            writeReported = countif(isnotnull(cacheWrite) and input >= 0 and cacheWrite >= 0 and cacheWrite <= input),\n            sessionReported = countif(isnotempty(sessionId)), lastCall = max(timestamp) by model\n| project model, calls, usagePct = 100.0 * reported / calls, cacheWritePct = 100.0 * writeReported / calls,\n          sessionPct = 100.0 * sessionReported / calls, lastCall\n| order by calls desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM Usage Coverage",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Separate signal populations: do not add parent/child spans, event reports, and metric observations as operations. Latest timestamp is event time, not ingestion time. Metric exports can repeat old cumulative values, so fresh metric timestamps do not prove new user activity. A zero metric observation count explicitly indicates no metric records at this resource in the selected window.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false,
+            "minWidth": 90
+          },
+          "mappings": [],
+          "noValue": "Not reported",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lastSeen"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "signal"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 480
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 306,
+      "options": {
+        "cellHeight": "sm",
+        "enablePagination": true,
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.9",
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "union\n(dependencies | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n | where name in (\"ai.streamText\", \"ai.streamText.doStream\", \"ai.toolCall\", \"Tool.execute\", \"SessionPrompt.prompt\", \"opencode.llm\", \"opencode.session\")\n | summarize records = count(), lastSeen = max(timestamp) by signal = name\n | extend source = \"Spans\"),\n(traces | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n | extend signal = tostring(customDimensions[\"event.name\"])\n | where isnotempty(signal)\n | summarize records = count(), lastSeen = max(timestamp) by signal\n | extend source = \"Log events\"),\n(customMetrics | where $__timeFilter(timestamp)\n| where cloud_RoleName == \"opencode\"\n | summarize records = count(), lastSeen = max(timestamp)\n | extend source = \"Metrics\", signal = \"Exported observations (not operations)\")\n| project source, signal, records, lastSeen\n| order by source asc, records desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Telemetry Signals",
+      "type": "table"
     }
   ],
   "preload": false,
   "refresh": "30m",
   "schemaVersion": 41,
-  "tags": [
-    "opencode",
-    "ai",
-    "telemetry",
-    "tokens",
-    "cost",
-    "tools",
-    "Azure-managed"
-  ],
+  "tags": [],
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "Azure Monitor",
-          "value": "azure-monitor"
-        },
+        "current": {},
         "label": "Data Source",
         "name": "am_ds",
         "options": [],
@@ -2136,10 +3029,7 @@
         "type": "datasource"
       },
       {
-        "current": {
-          "text": "Individual Subscription 5E - wuweng",
-          "value": "d21a525e-7c86-486d-a79e-a4f3622f639a"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -2164,10 +3054,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "5e-sample-app-telemetry",
-          "value": "5e-sample-app-telemetry"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -2177,10 +3064,6 @@
         "name": "rg",
         "options": [],
         "query": {
-          "azureLogAnalytics": {
-            "query": "",
-            "resources": []
-          },
           "azureResourceGraph": {
             "query": "resources\r\n| where type =~ \"microsoft.insights/components\"\r\n| project resourceGroup"
           },
@@ -2195,10 +3078,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "otel-2603",
-          "value": "otel-2603"
-        },
+        "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
           "uid": "${am_ds}"
@@ -2208,10 +3088,6 @@
         "name": "res",
         "options": [],
         "query": {
-          "azureLogAnalytics": {
-            "query": "",
-            "resources": []
-          },
           "namespace": "microsoft.insights/components",
           "queryType": "Azure Resource Names",
           "refId": "A",
@@ -2226,7 +3102,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {
@@ -2241,7 +3117,6 @@
   },
   "timezone": "browser",
   "title": "OpenCode",
-  "description": "OpenCode usage analytics: tracks sessions, user prompts, LLM calls, token consumption, tool executions, prompt latency, cache hit ratio, exceptions, and per-model/provider breakdowns. Data sourced from Application Insights via OpenTelemetry.",
   "uid": "OpenCode",
-  "version": 14
+  "version": 18
 }

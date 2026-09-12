@@ -1,62 +1,62 @@
 {
+  "__elements": {},
   "__inputs": [
     {
-      "name": "DS_AZURE_MONITOR",
-      "label": "Azure Monitor",
       "description": "",
-      "type": "datasource",
+      "label": "Azure Monitor",
+      "name": "am_ds",
       "pluginId": "grafana-azure-monitor-datasource",
-      "pluginName": "Azure Monitor"
+      "pluginName": "Azure Monitor",
+      "type": "datasource"
     }
   ],
-  "__elements": {},
   "__requires": [
     {
-      "type": "panel",
-      "id": "barchart",
-      "name": "Bar chart",
-      "version": ""
-    },
-    {
-      "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
+      "type": "grafana",
       "version": "11.6.9"
     },
     {
-      "type": "datasource",
       "id": "grafana-azure-monitor-datasource",
       "name": "Azure Monitor",
+      "type": "datasource",
       "version": "11.6.9"
     },
     {
+      "id": "barchart",
+      "name": "Bar chart",
       "type": "panel",
+      "version": ""
+    },
+    {
       "id": "piechart",
       "name": "Pie chart",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "stat",
       "name": "Stat",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "table",
       "name": "Table",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "timeseries",
       "name": "Time series",
+      "type": "panel",
       "version": ""
     },
     {
-      "type": "panel",
       "id": "traces",
-      "name": "Traces",
+      "name": "traces",
+      "type": "panel",
       "version": ""
     }
   ],
@@ -114,7 +114,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Key performance indicators for agent operations including total operations executed, token consumption (input and output), and average response time across all agents.",
+      "description": "Agent runs are invoke_agent spans (one per user turn in VS Code agent mode; one per Copilot CLI process or sub-agent run). Token totals are the per-run roll-ups reported on those spans, so model requests made outside an agent run (inline chat, Next Edit Suggestions, commit messages) are not included here \u2014 see the Token Efficiency row for all requests. AI Usage Units sums the usage units each client reports per request (github.copilot.nano_aiu for Copilot CLI, copilot_chat.copilot_usage_nano_aiu for VS Code, divided by 1e9); it reflects the client's per-model and cache-tier pricing, is not a currency amount, and excludes sub-agent runs, which report no usage units. The earlier 'Est. Total Cost' summed github.copilot.cost, which is a flat 1 per CLI request.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -134,8 +134,43 @@
         "overrides": [
           {
             "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
               "id": "byName",
-              "options": "Total Operations"
+              "options": "AI Usage Units"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agent Runs"
             },
             "properties": [
               {
@@ -150,7 +185,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Total Input Tokens"
+              "options": "Agent Input Tokens"
             },
             "properties": [
               {
@@ -169,7 +204,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Total Output Tokens"
+              "options": "Agent Output Tokens"
             },
             "properties": [
               {
@@ -184,7 +219,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Avg Response Time"
+              "options": "Avg Agent Run Duration"
             },
             "properties": [
               {
@@ -200,7 +235,7 @@
               },
               {
                 "id": "decimals",
-                "value": 2
+                "value": 1
               }
             ]
           }
@@ -236,16 +271,15 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies \n| where name contains \"invoke_agent\"\n| extend \n    serviceName = tostring(customDimensions[\"service.name\"]),\n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| where serviceName == \"copilot-chat\"\n| summarize \n    ['Total Operations'] = count(),\n    ['Total Input Tokens'] = sum(input_tokens),\n    ['Total Output Tokens'] = sum(output_tokens),\n    ['Avg Response Time'] = round(avg(duration) / 1000, 2)",
+            "query": "let usage = toscalar(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | extend aiu = coalesce(\n        todouble(customDimensions[\"github.copilot.nano_aiu\"]) / 1e9,\n        todouble(customDimensions[\"copilot_chat.copilot_usage_nano_aiu\"]) / 1e9)\n    | summarize round(sum(aiu), 1));\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize\n    Runs = count(),\n    InputTokens = sum(input_tokens),\n    OutputTokens = sum(output_tokens),\n    AvgRunSec = round(avg(duration) / 1000, 2)\n| project\n    ['AI Usage Units'] = usage,\n    ['Agent Runs'] = Runs,\n    ['Agent Input Tokens'] = InputTokens,\n    ['Agent Output Tokens'] = OutputTokens,\n    ['Avg Agent Run Duration'] = AvgRunSec",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -259,7 +293,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Key metrics across all LLM chat completions: total calls, total tokens consumed, and average time-to-first-token (TTFT).",
+      "description": "LLM Calls counts model requests (chat spans) from both sources, including Copilot CLI requests that never received a response (broken out in the Errors & Reliability row) but excluding sub-agent roll-up spans. Chat Sessions are distinct copilot_chat.chat_session_id (VS Code) / gen_ai.conversation.id (CLI). Reasoning Calls are measured requests with reasoning content (VS Code) or reasoning output tokens (CLI). Avg TTFT uses copilot_chat.time_to_first_token (VS Code, ms) or gen_ai.response.time_to_first_chunk (CLI, seconds converted to ms).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -277,6 +311,18 @@
           "unit": "short"
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -340,6 +386,21 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reasoning Calls"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -373,16 +434,15 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "let llmCalls = dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend ttft = toint(customDimensions[\"copilot_chat.time_to_first_token\"])\n| summarize ['LLM Calls'] = count(), ['Avg TTFT'] = round(avg(ttft), 0);\nlet sessions = traces\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where customDimensions[\"event.name\"] == \"copilot_chat.session.start\"\n| summarize ['Chat Sessions'] = count();\nlet tools = traces\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where customDimensions[\"event.name\"] == \"copilot_chat.tool.call\"\n| summarize ['Tool Calls'] = count();\nllmCalls | extend dummy = 1\n| join kind=inner (sessions | extend dummy = 1) on dummy\n| join kind=inner (tools | extend dummy = 1) on dummy\n| project ['LLM Calls'], ['Chat Sessions'], ['Tool Calls'], ['Avg TTFT']",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| extend\n    op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    isReasoning = isnotempty(tostring(customDimensions[\"copilot_chat.reasoning_content\"]))\n        or tolong(customDimensions[\"gen_ai.usage.reasoning.output_tokens\"]) > 0,\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"])),\n    ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| summarize\n    ['LLM Calls'] = countif(op == \"chat\" and (measured or not(hasModel))),\n    ['Chat Sessions'] = dcountif(sessId, isnotempty(sessId)),\n    ['Tool Calls'] = countif(op == \"execute_tool\"),\n    ['Reasoning Calls'] = countif(op == \"chat\" and measured and isReasoning),\n    ['Avg TTFT'] = round(avgif(ttft, op == \"chat\" and isnotnull(ttft)), 0)",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
+            "resultFormat": "table"
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -409,7 +469,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Number of LLM API calls over time, grouped by operation type (chat completions, agent invocations, tool executions).",
+      "description": "Spans over time by gen_ai.operation.name: chat (model requests), execute_tool (tool calls), invoke_agent (agent runs) and embeddings, from both sources.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -422,7 +482,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -462,7 +522,20 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -492,7 +565,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| extend opName = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where isnotempty(opName)\n| summarize Count = count() by bin(timestamp, $__interval), opName\n| order by timestamp asc",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| extend opName = tostring(customDimensions[\"gen_ai.operation.name\"])\n| where isnotempty(opName)\n| summarize Count = count() by bin(timestamp, $__interval), opName\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -501,7 +574,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -515,7 +588,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Total token consumption (input + output) over time, broken down by model.",
+      "description": "Total token consumption (input + output) per model over time. Counts every chat span with a recorded response model, including Copilot CLI sub-agent roll-up spans (a sub-agent run's usage is recorded as one span); agent-run roll-up spans (invoke_agent), which repeat their child requests, are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -528,7 +601,7 @@
             "axisLabel": "Tokens",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -568,7 +641,20 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -598,7 +684,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    inputTokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize TotalTokens = sum(inputTokens) + sum(outputTokens) by bin(timestamp, $__interval), model\n| order by timestamp asc",
+            "query": "let topModels = materialize(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n    | where isnotempty(customDimensions[\"gen_ai.response.model\"])\n    | extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n        inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n        outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n    | summarize Total = sum(inputTokens) + sum(outputTokens) by m\n    | top 7 by Total\n    | project m);\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize TotalTokens = sum(inputTokens) + sum(outputTokens) by bin(timestamp, $__interval), model\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -607,7 +693,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -634,7 +720,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Breakdown of LLM calls by model. Shows which AI models are being used and how frequently.",
+      "description": "Measured model requests by gen_ai.response.model. Includes background calls such as Next Edit Suggestions (copilot-nes-*) from VS Code. Only measured model requests are counted: chat spans with a recorded response model and a latency attribute. Agent-run roll-up spans (VS Code invoke_agent) and Copilot CLI sub-agent roll-up spans, which repeat or aggregate other requests, and CLI chat spans that never received a response are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -649,7 +735,20 @@
           },
           "mappings": []
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -691,7 +790,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"])\n| summarize CallCount = count() by model\n| order by CallCount desc",
+            "query": "let base = dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize CallCount = count() by model\n| order by CallCount desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -699,7 +798,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -713,7 +812,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Average and P90 response duration per model. Helps identify which models are slower.",
+      "description": "Average and P90 time the model service spent on a request, per model: github.copilot.server_duration for Copilot CLI (its chat spans also wrap the tool calls of a turn, so span duration would overstate model time) and span duration for VS Code, whose chat spans are pure model calls. Only measured model requests are counted: chat spans with a recorded response model and a latency attribute. Agent-run roll-up spans (VS Code invoke_agent) and Copilot CLI sub-agent roll-up spans, which repeat or aggregate other requests, and CLI chat spans that never received a response are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -751,7 +850,20 @@
           },
           "unit": "ms"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -787,7 +899,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"])\n| summarize ['Avg Duration'] = round(avg(duration), 0), ['P90 Duration'] = round(percentile(duration, 90), 0) by model\n| order by ['Avg Duration'] desc",
+            "query": "let base = dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]),\n    llmDuration = coalesce(todouble(customDimensions[\"github.copilot.server_duration\"]), duration);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['Avg Duration'] = round(avg(llmDuration), 0), ['P90 Duration'] = round(percentile(llmDuration, 90), 0) by model\n| order by ['Avg Duration'] desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -795,13 +907,13 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
         }
       ],
-      "title": "Response Duration by Model (Avg / P90)",
+      "title": "LLM Request Duration by Model (Avg / P90)",
       "type": "barchart"
     },
     {
@@ -809,7 +921,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Time to First Token (TTFT) percentiles per model. TTFT measures how quickly the user starts seeing a response stream. Lower is better for user experience.",
+      "description": "Time to first token per model (P50 / P90) for measured requests. VS Code reports copilot_chat.time_to_first_token in ms; Copilot CLI reports gen_ai.response.time_to_first_chunk in seconds (converted to ms here). github.copilot.server_duration is total server processing time and is not used. Only measured model requests are counted: chat spans with a recorded response model and a latency attribute. Agent-run roll-up spans (VS Code invoke_agent) and Copilot CLI sub-agent roll-up spans, which repeat or aggregate other requests, and CLI chat spans that never received a response are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -847,7 +959,20 @@
           },
           "unit": "ms"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -883,7 +1008,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    ttft = toint(customDimensions[\"copilot_chat.time_to_first_token\"])\n| summarize ['P50 TTFT'] = round(percentile(ttft, 50), 0), ['P90 TTFT'] = round(percentile(ttft, 90), 0) by model\n| order by ['P50 TTFT'] desc",
+            "query": "let base = dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n    or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n    or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| extend ttft = coalesce(\n        todouble(customDimensions[\"copilot_chat.time_to_first_token\"]),\n        todouble(customDimensions[\"gen_ai.response.time_to_first_chunk\"]) * 1000)\n| where isnotnull(ttft)\n| extend m = tostring(customDimensions[\"gen_ai.response.model\"]);\nlet topModels = materialize(base | summarize Total = count() by m | top 7 by Total | project m);\nbase\n| extend model = iff(m in (topModels), m, \"other\")\n| summarize ['P50 TTFT'] = round(percentile(ttft, 50), 0), ['P90 TTFT'] = round(percentile(ttft, 90), 0) by model\n| order by ['P50 TTFT'] desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -891,7 +1016,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -908,233 +1033,6 @@
         "x": 0,
         "y": 25
       },
-      "id": 103,
-      "panels": [],
-      "title": "Latency Trends",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Average LLM response duration over time, split by model.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 26
-      },
-      "id": 6,
-      "maxDataPoints": 60,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": true,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.9",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"])\n| summarize AvgDuration = round(avg(duration), 0) by bin(timestamp, $__interval), model\n| order by timestamp asc",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Avg Response Duration Over Time by Model",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-azure-monitor-datasource",
-        "uid": "${am_ds}"
-      },
-      "description": "Time to First Token (TTFT) P50 and P90 over time. TTFT is the delay before the user sees the first response token streaming in. Critical for perceived responsiveness.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 26
-      },
-      "id": 7,
-      "maxDataPoints": 60,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": true,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.9",
-      "targets": [
-        {
-          "azureLogAnalytics": {
-            "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n| extend ttft = toint(customDimensions[\"copilot_chat.time_to_first_token\"])\n| summarize ['P50 TTFT'] = round(percentile(ttft, 50), 0), ['P90 TTFT'] = round(percentile(ttft, 90), 0) by bin(timestamp, $__interval)\n| order by timestamp asc",
-            "resources": [
-              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
-            ],
-            "resultFormat": "time_series",
-            "timeColumn": "timestamp"
-          },
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
-          },
-          "queryType": "Azure Log Analytics",
-          "refId": "A"
-        }
-      ],
-      "title": "Time to First Token (P50 / P90) Over Time",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 34
-      },
       "id": 104,
       "panels": [],
       "title": "Agent & Feature Activity",
@@ -1145,7 +1043,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Breakdown of Copilot feature/agent usage. Shows which Copilot features (Chat, Edit Agent, Commit Generator, Explore, etc.) are being used most.",
+      "description": "Spans by gen_ai.agent.name. VS Code tags every model request with the feature that made it (XtabProvider = Next Edit Suggestions, panel/editAgent = agent mode, gitCommitMessageGenerator, ...); Copilot CLI only names sub-agent runs (e.g. research), so ordinary CLI turns do not appear. Agent-run roll-up spans that repeat their child requests are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1160,13 +1058,26 @@
           },
           "mappings": []
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 35
+        "y": 26
       },
       "id": 8,
       "options": {
@@ -1202,7 +1113,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| extend agentName = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(agentName)\n| summarize CallCount = count() by agentName\n| order by CallCount desc",
+            "query": "let topAgents = materialize(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n    | extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n    | where isnotempty(a)\n    | summarize Total = count() by a\n    | top 7 by Total\n    | project a);\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where not(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\" and isnotempty(customDimensions[\"gen_ai.response.model\"]))\n| extend a = tostring(customDimensions[\"gen_ai.agent.name\"])\n| where isnotempty(a)\n| extend agentName = iff(a in (topAgents), a, \"other\")\n| summarize CallCount = count() by agentName\n| order by CallCount desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1210,7 +1121,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -1261,13 +1172,26 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 35
+        "y": 26
       },
       "id": 9,
       "options": {
@@ -1297,7 +1221,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "traces\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where customDimensions[\"event.name\"] == \"copilot_chat.tool.call\"\n| extend toolName = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(toolName)\n| summarize CallCount = count() by toolName\n| order by CallCount desc\n| take 15",
+            "query": "let topTools = materialize(\n    dependencies\n    | where cloud_RoleName in (${source:singlequote})\n    | where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n    | extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n    | where isnotempty(t)\n    | summarize Total = count() by t\n    | top 7 by Total\n    | project t);\ndependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend t = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(t)\n| extend toolName = iff(t in (topTools), t, \"other\")\n| summarize CallCount = count() by toolName\n| order by CallCount desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1305,7 +1229,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -1319,7 +1243,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Copilot activity over time: chat sessions started, agent conversation turns, and tool calls executed.",
+      "description": "Copilot activity over time: distinct chat sessions, agent runs (invoke_agent spans, including Copilot CLI sub-agent runs), model requests (chat spans) and tool calls (execute_tool spans).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1332,7 +1256,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -1372,13 +1296,26 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 35
+        "y": 26
       },
       "id": 10,
       "maxDataPoints": 60,
@@ -1402,7 +1339,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "traces\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| extend eventName = tostring(customDimensions[\"event.name\"])\n| where eventName in (\"copilot_chat.session.start\", \"copilot_chat.agent.turn\", \"copilot_chat.tool.call\")\n| summarize Count = count() by bin(timestamp, $__interval), eventName\n| order by timestamp asc",
+            "query": "let base = dependencies\n| where cloud_RoleName in (${source:singlequote})\n| extend op = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    sessId = coalesce(\n        tostring(customDimensions[\"copilot_chat.chat_session_id\"]),\n        tostring(customDimensions[\"gen_ai.conversation.id\"]));\nlet sessions = base\n| where isnotempty(sessId)\n| summarize Count = dcount(sessId) by bin(timestamp, $__interval)\n| extend eventName = \"Chat Sessions\";\nlet runs = base\n| where op == \"invoke_agent\"\n| summarize Count = count() by bin(timestamp, $__interval)\n| extend eventName = \"Agent Runs\";\nlet llmCalls = base\n| where op == \"chat\"\n| summarize Count = count() by bin(timestamp, $__interval)\n| extend eventName = \"LLM Calls\";\nlet tools = base\n| where op == \"execute_tool\"\n| summarize Count = count() by bin(timestamp, $__interval)\n| extend eventName = \"Tool Calls\";\nunion sessions, runs, llmCalls, tools\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1411,14 +1348,237 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
         }
       ],
-      "title": "Sessions, Turns & Tool Calls Over Time",
+      "title": "Sessions, Agent Runs, LLM & Tool Calls Over Time",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "P50 and P90 duration of execute_tool spans for the ten most-called tools across both sources. Copilot CLI tool calls that cluster at exactly 60 s, 120 s or 180 s are client-side timeouts, which the CLI reports as successful calls.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
+      "id": 203,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), ['P50 Latency'] = round(percentile(duration, 50), 0), ['P90 Latency'] = round(percentile(duration, 90), 0) by tool\n| top 10 by Calls\n| project tool, ['P50 Latency'], ['P90 Latency']\n| order by ['P90 Latency'] desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tool Latency by Tool (P50 / P90)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "End-to-end duration of agent runs (invoke_agent spans) per source and agent name, with the number of runs longer than 10 minutes. Copilot CLI top-level runs carry no agent name and are shown as (unnamed); named CLI rows such as research are sub-agent runs started by the task tool.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Source"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "id": 204,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": [],
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Runs"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend agent = tostring(customDimensions[\"gen_ai.agent.name\"])\n| summarize Runs = count(), ['P50 Duration'] = round(percentile(duration, 50), 0), ['P90 Duration'] = round(percentile(duration, 90), 0), ['Max Duration'] = max(duration), ['Runs > 10 min'] = countif(duration > 600000) by Source = cloud_RoleName, Agent = iff(isempty(agent), \"(unnamed)\", agent)\n| order by Runs desc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Run Duration by Source and Agent",
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -1426,7 +1586,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 42
       },
       "id": 105,
       "panels": [],
@@ -1438,7 +1598,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Detailed breakdown of token usage per model: total input tokens, output tokens, average tokens per call, and call count.",
+      "description": "Token usage per model. Totals cover every chat span with a recorded response model, including Copilot CLI sub-agent roll-up spans (a sub-agent run's usage is recorded as one span, so its model shows tokens but few or no measured requests). Requests, per-request averages and the cache hit rate use measured requests only. Cached input tokens (gen_ai.usage.cache_read.input_tokens) are always a subset of input tokens.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1467,6 +1627,18 @@
           }
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byName",
@@ -1508,6 +1680,39 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache Hit %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
           }
         ]
       },
@@ -1515,7 +1720,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 43
       },
       "id": 14,
       "options": {
@@ -1523,7 +1728,11 @@
         "footer": {
           "countRows": false,
           "enablePagination": false,
-          "fields": [],
+          "fields": [
+            "Requests",
+            "TotalInputTokens",
+            "TotalOutputTokens"
+          ],
           "reducer": [
             "sum"
           ],
@@ -1542,7 +1751,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    inputTokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize Calls = count(),\n    TotalInputTokens = sum(inputTokens),\n    TotalOutputTokens = sum(outputTokens),\n    AvgInputPerCall = round(avg(inputTokens), 0),\n    AvgOutputPerCall = round(avg(outputTokens), 0)\n    by model\n| order by TotalInputTokens desc",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"]),\n    inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"]),\n    cacheRead = tolong(customDimensions[\"gen_ai.usage.cache_read.input_tokens\"])\n| summarize Requests = countif(measured),\n    TotalInputTokens = sum(inputTokens),\n    TotalOutputTokens = sum(outputTokens),\n    MeasuredInput = sumif(inputTokens, measured),\n    MeasuredCached = sumif(cacheRead, measured),\n    AvgInputPerRequest = round(avgif(inputTokens, measured), 0),\n    AvgOutputPerRequest = round(avgif(outputTokens, measured), 0)\n    by model\n| extend ['Cache Hit %'] = iff(MeasuredInput > 0, round(100.0 * MeasuredCached / MeasuredInput, 1), real(null)),\n    AvgInputPerRequest = iff(Requests > 0, AvgInputPerRequest, real(null)),\n    AvgOutputPerRequest = iff(Requests > 0, AvgOutputPerRequest, real(null))\n| project model, Requests, TotalInputTokens, TotalOutputTokens, ['Cache Hit %'], AvgInput = AvgInputPerRequest, AvgOutput = AvgOutputPerRequest\n| order by TotalInputTokens desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1550,13 +1759,13 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
         }
       ],
-      "title": "Token Usage by Model (Table)",
+      "title": "Token Usage by Model",
       "type": "table"
     },
     {
@@ -1564,7 +1773,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Input vs Output token ratio over time. A high ratio indicates large prompts with relatively small responses, which is typical for code context.",
+      "description": "Input vs output tokens over time across all model requests. Input is dominated by cached prompt context (see the Cache Hit % column in Token Usage by Model). Counts every chat span with a recorded response model, including Copilot CLI sub-agent roll-up spans (a sub-agent run's usage is recorded as one span); agent-run roll-up spans (invoke_agent), which repeat their child requests, are excluded.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1617,13 +1826,26 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 44
+        "y": 43
       },
       "id": 15,
       "options": {
@@ -1647,7 +1869,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend inputTokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize ['Input Tokens'] = sum(inputTokens), ['Output Tokens'] = sum(outputTokens) by bin(timestamp, $__interval)\n| order by timestamp asc",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| where isnotempty(customDimensions[\"gen_ai.response.model\"])\n| extend inputTokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    outputTokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| summarize ['Input Tokens'] = sum(inputTokens), ['Output Tokens'] = sum(outputTokens) by bin(timestamp, $__interval)\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1656,7 +1878,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -1671,7 +1893,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 51
       },
       "id": 106,
       "panels": [],
@@ -1696,7 +1918,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "barWidthFactor": 1,
             "drawStyle": "bars",
             "fillOpacity": 80,
             "gradientMode": "none",
@@ -1736,13 +1958,26 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 52
       },
       "id": 11,
       "maxDataPoints": 60,
@@ -1766,7 +2001,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "exceptions\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| extend exType = tostring(customDimensions[\"exception.type\"])\n| summarize Count = count() by bin(timestamp, $__interval), exType\n| order by timestamp asc",
+            "query": "exceptions\n| where cloud_RoleName in (${source:singlequote})\n| extend exType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"]))\n| summarize Count = count() by bin(timestamp, $__interval), exType\n| order by timestamp asc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1775,7 +2010,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -1820,6 +2055,18 @@
         "overrides": [
           {
             "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
               "id": "byName",
               "options": "ExceptionType"
             },
@@ -1848,7 +2095,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 52
       },
       "id": 16,
       "options": {
@@ -1875,7 +2122,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "exceptions\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| extend ExceptionType = tostring(customDimensions[\"exception.type\"]),\n    Message = outerMessage\n| project timestamp, ExceptionType, Message\n| order by timestamp desc",
+            "query": "exceptions\n| where cloud_RoleName in (${source:singlequote})\n| extend ExceptionType = coalesce(type, outerType, tostring(customDimensions[\"exception.type\"])),\n    Message = coalesce(outerMessage, innermostMessage, problemId)\n| project timestamp, ExceptionType, Message\n| order by timestamp desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -1883,7 +2130,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -1893,12 +2140,445 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Tool calls (execute_tool spans) that ended with success = false, per source and tool, with the failure rate and the P90 duration of all calls to that tool. Only tools with at least one failure are listed (top 15 by failures). VS Code reports error.type Error; Copilot CLI reports failure. Copilot CLI tool calls that cluster at ~60 s are client-side timeouts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failure %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-YlRd"
+                }
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P90 Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Tool"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 205
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Source"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 105
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 60
+      },
+      "id": 200,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": [],
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Failed"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"execute_tool\"\n| extend tool = tostring(customDimensions[\"gen_ai.tool.name\"])\n| where isnotempty(tool)\n| summarize Calls = count(), Failed = countif(tobool(success) == false), ['P90 Duration'] = round(percentile(duration, 90), 0) by Source = cloud_RoleName, Tool = tool\n| where Failed > 0\n| extend ['Failure %'] = round(100.0 * Failed / Calls, 1)\n| project Source, Tool, Failed, Calls, ['Failure %'], ['P90 Duration']\n| order by Failed desc\n| take 15",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Tool Call Failures by Tool",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Model requests (chat spans) by outcome. Completed: a response model and a latency attribute were recorded. No response recorded: Copilot CLI chat spans that ended without a response model, tokens or output (status unset, success true) \u2014 cancelled or superseded requests whose outcome is unknown; they are not counted as failures. Failed: success = false. Sub-agent roll-up spans, which are not requests, are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count Completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count No response recorded"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count Failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 10,
+        "y": 60
+      },
+      "id": 201,
+      "maxDataPoints": 60,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"chat\"\n| extend hasModel = isnotempty(customDimensions[\"gen_ai.response.model\"]),\n    measured = isnotempty(customDimensions[\"copilot_chat.time_to_first_token\"])\n        or isnotempty(customDimensions[\"gen_ai.response.time_to_first_chunk\"])\n        or isnotempty(customDimensions[\"github.copilot.server_duration\"])\n| where not(hasModel and not(measured))\n| extend outcome = case(\n    tobool(success) == false, \"Failed\",\n    not(hasModel), \"No response recorded\",\n    \"Completed\")\n| summarize Count = count() by bin(timestamp, $__interval), outcome\n| order by timestamp asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "time_series",
+            "timeColumn": "timestamp"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM Call Outcomes Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "${am_ds}"
+      },
+      "description": "Last span received per source within the selected time range, and the time elapsed since then relative to now (hours). Distinguishes an idle source from missing telemetry: Copilot CLI only exports while a session is running.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": null
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Since Last Span"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "h"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Source"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 60
+      },
+      "id": 202,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": [],
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "azureLogAnalytics": {
+            "dashboardTime": true,
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| summarize ['Last Span'] = max(timestamp), Spans = count(), ['Agent Runs'] = countif(tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\") by Source = cloud_RoleName\n| extend ['Since Last Span'] = round(datetime_diff('minute', now(), ['Last Span']) / 60.0, 1)\n| project Source, ['Last Span'], ['Since Last Span'], Spans, ['Agent Runs']\n| order by Source asc",
+            "resources": [
+              "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
+            ],
+            "resultFormat": "table"
+          },
+          "datasource": {
+            "type": "grafana-azure-monitor-datasource",
+            "uid": "${am_ds}"
+          },
+          "queryType": "Azure Log Analytics",
+          "refId": "A"
+        }
+      ],
+      "title": "Telemetry Freshness",
+      "type": "table"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 68
       },
       "id": 107,
       "panels": [],
@@ -1910,7 +2590,7 @@
         "type": "grafana-azure-monitor-datasource",
         "uid": "${am_ds}"
       },
-      "description": "Interactive table listing recent Copilot Chat operations. Click any row to drill down into detailed trace information for that specific operation.",
+      "description": "Recent agent runs (invoke_agent spans) from both sources. Model falls back to the requested model when the run has no response model (Copilot CLI). Click a row to load its trace below.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2036,7 +2716,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 69
       },
       "id": 108,
       "options": {
@@ -2063,7 +2743,7 @@
         {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\n| where name contains \"invoke_agent\"\n| extend operation = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    model = tostring(customDimensions[\"gen_ai.response.model\"]),\n    input_tokens = toint(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = toint(customDimensions[\"gen_ai.usage.output_tokens\"])\n| project timestamp, operation, model, success, duration, input_tokens, output_tokens, TraceId=operation_Id\n| order by timestamp desc",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| extend operation = tostring(customDimensions[\"gen_ai.operation.name\"]),\n    agent = tostring(customDimensions[\"gen_ai.agent.name\"]),\n    model = coalesce(tostring(customDimensions[\"gen_ai.response.model\"]), tostring(customDimensions[\"gen_ai.request.model\"])),\n    input_tokens = tolong(customDimensions[\"gen_ai.usage.input_tokens\"]),\n    output_tokens = tolong(customDimensions[\"gen_ai.usage.output_tokens\"])\n| project timestamp, Source = cloud_RoleName, operation, agent, model, success, duration, input_tokens, output_tokens, TraceId=operation_Id\n| order by timestamp desc",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2072,7 +2752,7 @@
           },
           "datasource": {
             "type": "grafana-azure-monitor-datasource",
-            "uid": "${DS_AZURE_MONITOR}"
+            "uid": "${am_ds}"
           },
           "queryType": "Azure Log Analytics",
           "refId": "A"
@@ -2087,7 +2767,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 77
       },
       "id": 109,
       "panels": [],
@@ -2104,7 +2784,7 @@
         "h": 27,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 78
       },
       "id": 110,
       "options": {
@@ -2141,19 +2821,16 @@
             ]
           },
           "queryType": "Azure Traces",
-          "refId": "A",
-          "datasource": {
-            "type": "grafana-azure-monitor-datasource",
-            "uid": "${am_ds}"
-          }
+          "refId": "A"
         }
       ],
       "title": "Trace Visualization",
       "type": "traces"
     }
   ],
+  "preload": false,
   "refresh": "30m",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [
     "github-copilot",
     "copilot",
@@ -2179,7 +2856,7 @@
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
         "description": "Subscription of the Application Insights",
@@ -2232,7 +2909,7 @@
         "current": {},
         "datasource": {
           "type": "grafana-azure-monitor-datasource",
-          "uid": "${DS_AZURE_MONITOR}"
+          "uid": "${am_ds}"
         },
         "definition": "",
         "label": "Application Insights",
@@ -2269,7 +2946,7 @@
         "query": {
           "azureLogAnalytics": {
             "dashboardTime": true,
-            "query": "dependencies\r\n| where customDimensions[\"service.name\"] == \"copilot-chat\"\r\n| distinct operation_Id\r\n| limit 50",
+            "query": "dependencies\n| where cloud_RoleName in (${source:singlequote})\n| where tostring(customDimensions[\"gen_ai.operation.name\"]) == \"invoke_agent\"\n| distinct operation_Id\n| limit 50",
             "resources": [
               "/subscriptions/$sub/resourceGroups/$rg/providers/microsoft.insights/components/$res"
             ],
@@ -2281,6 +2958,37 @@
         "refresh": 2,
         "regex": "",
         "type": "query"
+      },
+      {
+        "current": {
+          "text": [
+            "VS Code Copilot",
+            "Copilot CLI"
+          ],
+          "value": [
+            "copilot-chat",
+            "github-copilot"
+          ]
+        },
+        "description": "Filter by sender: VS Code Copilot Chat (copilot-chat), Copilot CLI (github-copilot), or both",
+        "includeAll": false,
+        "label": "Source",
+        "multi": true,
+        "name": "source",
+        "options": [
+          {
+            "selected": true,
+            "text": "VS Code Copilot",
+            "value": "copilot-chat"
+          },
+          {
+            "selected": true,
+            "text": "Copilot CLI",
+            "value": "github-copilot"
+          }
+        ],
+        "query": "VS Code Copilot : copilot-chat, Copilot CLI : github-copilot",
+        "type": "custom"
       }
     ]
   },
@@ -2292,6 +3000,6 @@
   "timezone": "browser",
   "title": "GitHub Copilot",
   "uid": "GitHubCopilot",
-  "version": 15,
+  "version": 38,
   "weekStart": ""
 }
